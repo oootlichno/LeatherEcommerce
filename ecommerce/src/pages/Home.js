@@ -1,13 +1,32 @@
-import React from 'react';
+import React from "react";
+import leather from "../style/img/leather.png";
+import handtools from "../style/img/handtools.png";
+import molds from "../style/img/molds.png";
+
+
 
 const HomePage = () => {
   return (
     <div>
       <h1>Ecommerce Leather selling</h1>
       <div>
-        <h3>About me</h3>
-        <p>Hi! My name is Kseniia. I'm a Full Stack Developer with a passion for creating dynamic and responsive web applications. With expertise in front-end technologies, I enjoy building solutions that are efficient, user-friendly, and scalable. Welcome to my portfolio, where you can explore my latest projects and learn more about my work.</p>
-        {/* <img src='/img/me.jpg' alt='main_picture' /> */}
+        <h2>SHOP BY CATEGORY</h2>
+        <div className="categories">
+          <div className="category">
+            <img src={leather} alt="category_picture" />
+            <p>Leather</p>
+          </div>
+
+          <div className="category">
+            <img src={handtools} alt="category_picture" />
+            <p>Hand Tools</p>
+          </div>
+
+          <div className="category">
+            <img src={molds} alt="category_picture" />
+            <p>Molds</p>
+          </div>
+        </div>
       </div>
     </div>
   );
