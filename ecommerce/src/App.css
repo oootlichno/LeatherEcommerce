@@ -15,9 +15,8 @@ body {
 }
 
 .logo img {
-  max-width: 80px;
+  max-width: 150px;
   height: auto;
-  margin-right: 20px; /* Add some space between logo and header-content */
 }
 
 .header-content {
@@ -76,7 +75,7 @@ h2 {
 .Footer {
   background-color: darkslategray;
   color: #fff;
-  text-align: center;
+  text-align: left;
   padding: 15px;
   font-size: 14px;
   position: fixed;
