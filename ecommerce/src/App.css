@@ -6,15 +6,33 @@ body {
   color: #333;
 }
 
-h1 {
+.header {
+  display: flex;
+  align-items: center;
+  margin: 20px auto;
+  max-width: 1200px;
+  padding: 0 20px;
+}
+
+.logo img {
+  max-width: 80px;
+  height: auto;
+  margin-right: 20px; /* Add some space between logo and header-content */
+}
+
+.header-content {
+  flex: 1;
   text-align: center;
-  margin-top: 20px;
+}
+
+h1 {
+  margin: 0;
   color: #2f4f4f;
 }
 
 h2 {
   text-align: center;
-  margin-top: 20px;
+  margin-top: 10px;
   color: #2f4f4f;
 }
 
