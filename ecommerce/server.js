@@ -38,6 +38,22 @@ app.get('/api/products', async (req, res) => {
   }
 });
 
+app.get('/api/products/:id', async (req, res) => {
+    console.log(`Request for product ID: ${req.params.id}`);
+    const { id } = req.params;
+    try {
+      const product = await db('products').where({ id }).first();
+      if (product) {
+        res.status(200).json(product);
+      } else {
+        res.status(404).json({ error: `Product with ID ${id} not found` });
+      }
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Failed to retrieve product' });
+    }
+  });
+
 app.post('/api/users', async (req, res) => {
   const { username, email, password } = req.body;
   try {

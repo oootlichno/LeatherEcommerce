@@ -1,46 +1,64 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import logo from "../style/img/logo.png";
-import product1 from "../style/img/leather.png"; 
-import Footer from "../components/Footer"; 
+import Footer from "../components/Footer";
+import productImage from "../style/img/leather.png";
+
 
 const LeatherPage = () => {
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch("http://localhost:5001/api/products?category=leather");
+        if (!response.ok) {
+          throw new Error("Failed to fetch products");
+        }
+        const data = await response.json();
+        setProducts(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
+
   return (
     <div>
-    <div className="header">
-      <div className="logo">
-        <Link to="/product">
-          <img src={logo} alt="logo" />
-        </Link>
+      <div className="header">
+        <div className="logo">
+          <Link to="/">
+            <img src={logo} alt="logo" />
+          </Link>
+        </div>
+        <div className="nav">
+          <Link to="/" className="nav-link">Home</Link>
+        </div>
       </div>
-      <div className="nav">
-        <Link to="/" className="nav-link">Home</Link>
-      </div>
-    </div>
 
       <div>
         <h2>SHOP BY PRODUCT</h2>
       </div>
 
       <div className="products">
-        <div className="product">
-        <Link to="/">
-
-          <img src={product1} alt="Product 1" />
-          <p className="product-name">Premium Leather Roll</p>
-          <p className="product-price">$79.99</p>
-          </Link>
-        </div>
-        <div className="product">
-          <img src={product1} alt="Product 2" />
-          <p className="product-name">Vegetable Tanned Leather</p>
-          <p className="product-price">$59.99</p>
-        </div>
-        <div className="product">
-          <img src={product1} alt="Product 3" />
-          <p className="product-name">Embossed Leather Sheet</p>
-          <p className="product-price">$34.99</p>
-        </div>
+        {products.map((product) => (
+          <div className="product" key={product.id}>
+            <Link to={`/product/${product.id}`}>
+              <img src={product.image_url || productImage} alt={product.name} />
+              <p className="product-name">{product.name}</p>
+              <p className="product-price">${product.price.toFixed(2)}</p>
+            </Link>
+          </div>
+        ))}
       </div>
 
       <Footer />

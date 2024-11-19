@@ -21,7 +21,7 @@
     "server": "node server.js",
     "dev": "npm run server",
     "build": "react-scripts build",
-    "test": "jest",
+    "test": "NODE_ENV=testing jest",
     "eject": "react-scripts eject",
     "migrate": "knex migrate:latest",
     "rollback": "knex migrate:rollback",
@@ -51,6 +51,7 @@
     "concurrently": "^9.1.0",
     "jest": "^27.5.1",
     "knex": "^3.1.0",
-    "sqlite3": "^5.1.7"
+    "sqlite3": "^5.1.7",
+    "supertest": "^7.0.0"
   }
 }
