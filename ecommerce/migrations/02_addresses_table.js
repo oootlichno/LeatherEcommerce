@@ -1,14 +1,12 @@
 exports.up = function (knex) {
     return knex.schema.createTable('addresses', (table) => {
       table.increments('id').primary();
-      table.integer('user_id').unsigned().references('id').inTable('users').onDelete('CASCADE');
-      table.enu('type', ['shipping', 'billing']).notNullable();
-      table.string('street', 255).notNullable();
-      table.string('city', 255).notNullable();
-      table.string('state', 255).notNullable();
-      table.string('postal_code', 20).notNullable();
-      table.string('country', 100).notNullable();
-      table.timestamps(true, true);
+      table.integer('user_id').unsigned().notNullable().references('id').inTable('users').onDelete('CASCADE');
+      table.string('street').notNullable();
+      table.string('city').notNullable();
+      table.string('state').notNullable();
+      table.string('zip').notNullable(); 
+      table.string('country').notNullable();
     });
   };
   
