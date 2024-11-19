@@ -9,7 +9,7 @@ const LeatherPage = () => {
     <div>
     <div className="header">
       <div className="logo">
-        <Link to="/">
+        <Link to="/product">
           <img src={logo} alt="logo" />
         </Link>
       </div>
@@ -24,9 +24,12 @@ const LeatherPage = () => {
 
       <div className="products">
         <div className="product">
+        <Link to="/">
+
           <img src={product1} alt="Product 1" />
           <p className="product-name">Premium Leather Roll</p>
           <p className="product-price">$79.99</p>
+          </Link>
         </div>
         <div className="product">
           <img src={product1} alt="Product 2" />

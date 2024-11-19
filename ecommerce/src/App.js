@@ -6,6 +6,7 @@ import Footer from "./components/Footer";
 import LeatherPage from "./pages/Leather_category";
 import HandToolsPage from "./pages/Handtools_category";
 import MoldsPage from "./pages/Mold_category";
+import ProductPage from "./pages/ProductPage";
 
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
           <Route path="/leather" element={<LeatherPage />} />
           <Route path="/handtools" element={<HandToolsPage />} />
           <Route path="/molds" element={<MoldsPage />} />
+          <Route path="/product/:id" element={<ProductPage />} />
         </Routes>
         <Footer />
       </div>
