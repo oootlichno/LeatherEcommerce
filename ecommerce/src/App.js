@@ -11,7 +11,7 @@ import RegisterPage from "./pages/RegisterPage";
 import LoginPage from "./pages/LoginPage";
 import AccountPage from "./pages/AccountPage";
 import CartPage from "./pages/CartPage";
-import CheckoutPage from "./pages/CheckoutPage"; 
+import CheckoutPage from "./pages/CheckoutPage";
 
 function App() {
   const [token, setToken] = useState(() => localStorage.getItem("token"));
@@ -59,7 +59,7 @@ function App() {
               <Home
                 token={token}
                 setToken={handleSetToken}
-                cartItems={cart} 
+                cartItems={cart} // Pass cartItems to Home
               />
             }
           />
@@ -68,7 +68,14 @@ function App() {
           <Route path="/molds" element={<MoldsPage />} />
           <Route
             path="/product/:id"
-            element={<ProductPage addToCart={addToCart} />}
+            element={
+              <ProductPage
+                addToCart={addToCart}
+                cartItems={cart} 
+                token={token} 
+                setToken={handleSetToken} 
+              />
+            }
           />
           <Route path="/register" element={<RegisterPage />} />
           <Route
@@ -78,7 +85,9 @@ function App() {
           {isAuthenticated ? (
             <Route
               path="/account"
-              element={<AccountPage token={token} setToken={handleSetToken} />}
+              element={
+                <AccountPage token={token} setToken={handleSetToken} />
+              }
             />
           ) : (
             <Route path="/account" element={<Navigate to="/login" replace />} />
@@ -90,6 +99,7 @@ function App() {
                 cartItems={cart}
                 removeFromCart={removeFromCart}
                 token={token}
+                setToken={handleSetToken} 
               />
             }
           />

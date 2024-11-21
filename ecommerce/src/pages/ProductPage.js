@@ -2,13 +2,19 @@ import React, { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 import logo from "../style/img/logo.png";
 import productImage from "../style/img/leather.png";
+import CartComponent from "../components/CartComponent";
 
-const ProductPage = ({ addToCart }) => { 
+const ProductPage = ({ addToCart, cartItems, token, setToken }) => { // ADDED cartItems, token, setToken
   const { id } = useParams();
   const [product, setProduct] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const handleLogout = () => {
+    setToken(null);
+    localStorage.removeItem("token");
+  };
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -34,9 +40,9 @@ const ProductPage = ({ addToCart }) => {
     if (quantity > 1) setQuantity((prev) => prev - 1);
   };
 
-  const handleAddToCart = () => { 
+  const handleAddToCart = () => {
     if (product) {
-      addToCart(product, quantity);
+      addToCart(product, quantity); // Update cart
     }
   };
 
@@ -47,6 +53,9 @@ const ProductPage = ({ addToCart }) => {
     <div>
       {/* Header Section */}
       <div className="header">
+        <div className="cart-container">
+          <CartComponent cartItems={cartItems} /> {/* ADDED */}
+        </div>
         <div className="logo">
           <Link to="/">
             <img src={logo} alt="logo" />
@@ -54,6 +63,19 @@ const ProductPage = ({ addToCart }) => {
         </div>
         <div className="nav">
           <Link to="/" className="nav-link">Home</Link>
+          {token ? (
+            <>
+              <Link to="/account" className="nav-link">Account</Link>
+              <button
+                onClick={handleLogout}
+                className="nav-link logout-button"
+              >
+                Log out
+              </button>
+            </>
+          ) : (
+            <Link to="/login" className="nav-link">Log in</Link>
+          )}
         </div>
       </div>
       {/* End of Header Section */}
@@ -99,7 +121,7 @@ const ProductPage = ({ addToCart }) => {
               </div>
               <button className="add-to-cart" onClick={handleAddToCart}>
                 Add to cart
-              </button> 
+              </button>
             </div>
           </div>
         </div>
@@ -109,4 +131,5 @@ const ProductPage = ({ addToCart }) => {
 };
 
 export default ProductPage;
+
 
