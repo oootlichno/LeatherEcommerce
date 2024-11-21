@@ -40,7 +40,7 @@ const ProductPage = () => {
   return (
     <div>
       {/* Header Section */}
-      <div className="header"> {/* ADDED HEADER */}
+      <div className="header"> 
         <div className="logo">
           <Link to="/">
             <img src={logo} alt="logo" />
@@ -101,3 +101,4 @@ const ProductPage = () => {
 };
 
 export default ProductPage;
+

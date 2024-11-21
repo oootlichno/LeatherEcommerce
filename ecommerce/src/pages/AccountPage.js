@@ -1,37 +1,106 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { Link, useNavigate } from "react-router-dom";
+import logo from "../style/img/logo.png";
 
-const AccountPage = ({ token }) => {
+const AccountPage = ({ token, setToken }) => {
   const [user, setUser] = useState(null);
   const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUserData = async () => {
-      const { data } = await axios.get("http://localhost:5001/account", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setUser(data.user);
-      setOrders(data.orders);
+      try {
+        const { data } = await axios.get("http://localhost:5001/account", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        setUser(data.user);
+        setOrders(data.orders);
+      } catch (error) {
+        console.error("Failed to fetch account data:", error.message);
+        alert("Failed to fetch account data. Please try logging in again.");
+      } finally {
+        setLoading(false);
+      }
     };
 
-    fetchUserData();
+    if (token) {
+      fetchUserData();
+    }
   }, [token]);
 
-  if (!user) return <div>Loading...</div>;
+  const handleLogout = () => {
+    setToken(null); // Clear the token
+    navigate("/"); // Redirect to the login page
+  };
+
+  if (loading) return <div className="loading">Loading...</div>;
+
+  if (!user) {
+    return (
+      <>
+        {/* Header Section */}
+        <div className="header"> 
+          <div className="logo">
+            <Link to="/">
+              <img src={logo} alt="logo" />
+            </Link>
+          </div>
+          <div className="nav">
+            <Link to="/" className="nav-link">Home</Link>
+          </div>
+        </div>
+        {/* End of Header Section */}
+        <div className="access-denied">
+          <h2>Access Denied</h2>
+          <p>Please log in to access your account.</p>
+        </div>
+      </>
+    );
+  }
 
   return (
-    <div>
-      <h1>Account</h1>
-      <p>Name: {user.username}</p>
-      <p>Email: {user.email}</p>
-      <p>Address: {user.address}</p>
-      <h2>Order History</h2>
-      <ul>
-        {orders.map((order) => (
-          <li key={order.id}>Order #{order.id} - ${order.total}</li>
-        ))}
-      </ul>
-    </div>
+    <>
+      {/* Header Section */}
+      <div className="header"> 
+        <div className="logo">
+          <Link to="/">
+            <img src={logo} alt="logo" />
+          </Link>
+        </div>
+        <div className="nav">
+          <Link to="/" className="nav-link">Home</Link>
+          <button onClick={handleLogout} className="logout-button">Log Out</button>
+        </div>
+      </div>
+      {/* End of Header Section */}
+
+      <div className="account-container">
+        <div className="account-box">
+          <h1 className="account-title">Account Details</h1>
+          <div className="account-details">
+            <p><strong>Name:</strong> {user.username}</p>
+            <p><strong>Email:</strong> {user.email}</p>
+            <p><strong>Address:</strong> {user.address || "No address provided"}</p>
+          </div>
+          <h2 className="order-history-title">Order History</h2>
+          <ul className="order-list">
+            {orders.length > 0 ? (
+              orders.map((order) => (
+                <li key={order.id} className="order-item">
+                  <span><strong>Order #{order.id}</strong></span>
+                  <span>${order.total.toFixed(2)}</span>
+                </li>
+              ))
+            ) : (
+              <p>No orders found.</p>
+            )}
+          </ul>
+        </div>
+      </div>
+    </>
   );
 };
 

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
+import PropTypes from "prop-types";
 
 const LoginPage = ({ setToken }) => {
   const [form, setForm] = useState({ email: "", password: "" });
@@ -11,10 +12,17 @@ const LoginPage = ({ setToken }) => {
     e.preventDefault();
     try {
       const { data } = await axios.post("http://localhost:5001/login", form);
-      setToken(data.token);
+
+      if (typeof setToken === "function") {
+        setToken(data.token);
+      } else {
+        console.error("setToken is not a function");
+      }
+
       alert("Login successful!");
       navigate("/account");
-    } catch {
+    } catch (error) {
+      console.error("Login Error:", error);
       alert("Invalid credentials.");
     }
   };
@@ -42,7 +50,9 @@ const LoginPage = ({ setToken }) => {
               required
             />
           </div>
-          <button type="submit" className="login-button">Log In</button>
+          <button type="submit" className="login-button">
+            Log In
+          </button>
         </form>
         <p className="register-link">
           Don't have an account? <Link to="/register">Create one</Link>
@@ -50,6 +60,10 @@ const LoginPage = ({ setToken }) => {
       </div>
     </div>
   );
+};
+
+LoginPage.propTypes = {
+  setToken: PropTypes.func.isRequired,
 };
 
 export default LoginPage;
