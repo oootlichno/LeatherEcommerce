@@ -16,9 +16,9 @@ function App() {
 
   useEffect(() => {
     if (token) {
-      localStorage.setItem("token", token); // Save token to localStorage
+      localStorage.setItem("token", token); 
     } else {
-      localStorage.removeItem("token"); // Remove token on logout
+      localStorage.removeItem("token"); 
     }
   }, [token]);
 
