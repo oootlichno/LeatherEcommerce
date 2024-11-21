@@ -3,8 +3,8 @@ import { Link, useParams } from "react-router-dom";
 import logo from "../style/img/logo.png";
 import productImage from "../style/img/leather.png";
 
-const ProductPage = () => {
-  const { id } = useParams(); 
+const ProductPage = ({ addToCart }) => { 
+  const { id } = useParams();
   const [product, setProduct] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(true);
@@ -13,7 +13,7 @@ const ProductPage = () => {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const response = await fetch(`http://localhost:5001/api/products/${id}`); 
+        const response = await fetch(`http://localhost:5001/api/products/${id}`);
         if (!response.ok) {
           throw new Error("Failed to fetch product data");
         }
@@ -34,13 +34,19 @@ const ProductPage = () => {
     if (quantity > 1) setQuantity((prev) => prev - 1);
   };
 
+  const handleAddToCart = () => { 
+    if (product) {
+      addToCart(product, quantity);
+    }
+  };
+
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
 
   return (
     <div>
       {/* Header Section */}
-      <div className="header"> 
+      <div className="header">
         <div className="logo">
           <Link to="/">
             <img src={logo} alt="logo" />
@@ -91,7 +97,9 @@ const ProductPage = () => {
                 <span>{quantity}</span>
                 <button onClick={handleIncrement}>+</button>
               </div>
-              <button className="add-to-cart">Add to cart</button>
+              <button className="add-to-cart" onClick={handleAddToCart}>
+                Add to cart
+              </button> 
             </div>
           </div>
         </div>

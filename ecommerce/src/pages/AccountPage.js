@@ -32,8 +32,8 @@ const AccountPage = ({ token, setToken }) => {
   }, [token]);
 
   const handleLogout = () => {
-    setToken(null); // Clear the token
-    navigate("/"); // Redirect to the login page
+    setToken(null);
+    navigate("/");
   };
 
   if (loading) return <div className="loading">Loading...</div>;
@@ -42,14 +42,16 @@ const AccountPage = ({ token, setToken }) => {
     return (
       <>
         {/* Header Section */}
-        <div className="header"> 
+        <div className="header">
           <div className="logo">
             <Link to="/">
               <img src={logo} alt="logo" />
             </Link>
           </div>
           <div className="nav">
-            <Link to="/" className="nav-link">Home</Link>
+            <Link to="/" className="nav-link">
+              Home
+            </Link>
           </div>
         </div>
         {/* End of Header Section */}
@@ -64,15 +66,19 @@ const AccountPage = ({ token, setToken }) => {
   return (
     <>
       {/* Header Section */}
-      <div className="header"> 
+      <div className="header">
         <div className="logo">
           <Link to="/">
             <img src={logo} alt="logo" />
           </Link>
         </div>
         <div className="nav">
-          <Link to="/" className="nav-link">Home</Link>
-          <button onClick={handleLogout} className="logout-button">Log Out</button>
+          <Link to="/" className="nav-link">
+            Home
+          </Link>
+          <button onClick={handleLogout} className="nav-link">
+            Log Out
+          </button>
         </div>
       </div>
       {/* End of Header Section */}
@@ -81,16 +87,24 @@ const AccountPage = ({ token, setToken }) => {
         <div className="account-box">
           <h1 className="account-title">Account Details</h1>
           <div className="account-details">
-            <p><strong>Name:</strong> {user.username}</p>
-            <p><strong>Email:</strong> {user.email}</p>
-            <p><strong>Address:</strong> {user.address || "No address provided"}</p>
+            <p>
+              <strong>Name:</strong> {user.username}
+            </p>
+            <p>
+              <strong>Email:</strong> {user.email}
+            </p>
+            <p>
+              <strong>Address:</strong> {user.address || "No address provided"}
+            </p>
           </div>
           <h2 className="order-history-title">Order History</h2>
           <ul className="order-list">
             {orders.length > 0 ? (
               orders.map((order) => (
                 <li key={order.id} className="order-item">
-                  <span><strong>Order #{order.id}</strong></span>
+                  <span>
+                    <strong>Order #{order.id}</strong>
+                  </span>
                   <span>${order.total.toFixed(2)}</span>
                 </li>
               ))
@@ -98,6 +112,14 @@ const AccountPage = ({ token, setToken }) => {
               <p>No orders found.</p>
             )}
           </ul>
+
+          {/* ADDED: Link to Cart */}
+          <div className="cart-link">
+            <p>
+              Need to continue shopping? Check out your{" "}
+              <Link to="/cart">Shopping Cart</Link>.
+            </p>
+          </div> {/* ADDED */}
         </div>
       </div>
     </>

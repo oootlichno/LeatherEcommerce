@@ -1,12 +1,11 @@
 const express = require("express");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const db = require("../tests/dbSetup"); // Your database configuration
+const db = require("../tests/dbSetup"); 
 
 const router = express.Router();
-const JWT_SECRET = "oootlichno_Ksu_123456789"; // Use a secure, environment-stored secret in production
+const JWT_SECRET = "oootlichno_Ksu_123456789"; 
 
-// Create a new user
 router.post("/register", async (req, res) => {
   const { username, password, email, address } = req.body;
   try {
@@ -23,7 +22,6 @@ router.post("/register", async (req, res) => {
   }
 });
 
-// Login user
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
   try {
@@ -41,7 +39,6 @@ router.post("/login", async (req, res) => {
   }
 });
 
-// Protect routes
 const authenticate = (req, res, next) => {
   const token = req.headers.authorization?.split(" ")[1];
   if (!token) return res.status(401).json({ error: "Access denied" });

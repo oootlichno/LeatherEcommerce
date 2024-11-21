@@ -10,15 +10,36 @@ import ProductPage from "./pages/ProductPage";
 import RegisterPage from "./pages/RegisterPage";
 import LoginPage from "./pages/LoginPage";
 import AccountPage from "./pages/AccountPage";
+import CartPage from "./pages/CartPage";
+import CheckoutPage from "./pages/CheckoutPage"; 
 
 function App() {
   const [token, setToken] = useState(() => localStorage.getItem("token"));
+  const [cart, setCart] = useState([]); 
+
+  const addToCart = (product, quantity) => {
+    setCart((prevCart) => {
+      const existingItem = prevCart.find((item) => item.id === product.id);
+      if (existingItem) {
+        return prevCart.map((item) =>
+          item.id === product.id
+            ? { ...item, quantity: item.quantity + quantity }
+            : item
+        );
+      }
+      return [...prevCart, { ...product, quantity }];
+    });
+  };
+
+  const removeFromCart = (productId) => {
+    setCart((prevCart) => prevCart.filter((item) => item.id !== productId));
+  };
 
   useEffect(() => {
     if (token) {
-      localStorage.setItem("token", token); 
+      localStorage.setItem("token", token);
     } else {
-      localStorage.removeItem("token"); 
+      localStorage.removeItem("token");
     }
   }, [token]);
 
@@ -31,16 +52,24 @@ function App() {
   return (
     <BrowserRouter>
       <div>
-        {/* Define routes */}
         <Routes>
           <Route
             path="/"
-            element={<Home token={token} setToken={handleSetToken} />}
+            element={
+              <Home
+                token={token}
+                setToken={handleSetToken}
+                cartItems={cart} 
+              />
+            }
           />
           <Route path="/leather" element={<LeatherPage />} />
           <Route path="/handtools" element={<HandToolsPage />} />
           <Route path="/molds" element={<MoldsPage />} />
-          <Route path="/product/:id" element={<ProductPage />} />
+          <Route
+            path="/product/:id"
+            element={<ProductPage addToCart={addToCart} />}
+          />
           <Route path="/register" element={<RegisterPage />} />
           <Route
             path="/login"
@@ -52,11 +81,22 @@ function App() {
               element={<AccountPage token={token} setToken={handleSetToken} />}
             />
           ) : (
-            <Route
-              path="/account"
-              element={<Navigate to="/login" replace />}
-            />
+            <Route path="/account" element={<Navigate to="/login" replace />} />
           )}
+          <Route
+            path="/cart"
+            element={
+              <CartPage
+                cartItems={cart}
+                removeFromCart={removeFromCart}
+                token={token}
+              />
+            }
+          />
+          <Route
+            path="/checkout"
+            element={<CheckoutPage token={token} />} 
+          />
         </Routes>
         <Footer />
       </div>
