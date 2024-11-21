@@ -59,13 +59,40 @@ function App() {
               <Home
                 token={token}
                 setToken={handleSetToken}
-                cartItems={cart} // Pass cartItems to Home
+                cartItems={cart} 
               />
             }
           />
-          <Route path="/leather" element={<LeatherPage />} />
-          <Route path="/handtools" element={<HandToolsPage />} />
-          <Route path="/molds" element={<MoldsPage />} />
+          <Route
+            path="/leather"
+            element={
+              <LeatherPage
+                cartItems={cart} 
+                token={token} 
+                setToken={handleSetToken} 
+              />
+            }
+          />
+          <Route
+            path="/handtools"
+            element={
+              <HandToolsPage
+                cartItems={cart}
+                token={token}
+                setToken={handleSetToken}
+              />
+            }
+          />
+          <Route
+            path="/molds"
+            element={
+              <MoldsPage
+                cartItems={cart}
+                token={token}
+                setToken={handleSetToken}
+              />
+            }
+          />
           <Route
             path="/product/:id"
             element={
