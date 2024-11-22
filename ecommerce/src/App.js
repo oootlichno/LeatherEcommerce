@@ -12,6 +12,7 @@ import LoginPage from "./pages/LoginPage";
 import AccountPage from "./pages/AccountPage";
 import CartPage from "./pages/CartPage";
 import CheckoutPage from "./pages/CheckoutPage";
+import ThankYouPage from "./pages/ThankYouPage";
 
 function App() {
   const [token, setToken] = useState(() => localStorage.getItem("token"));
@@ -65,42 +66,23 @@ function App() {
           />
           <Route
             path="/leather"
-            element={
-              <LeatherPage
-                cartItems={cart} 
-                token={token} 
-                setToken={handleSetToken} 
-              />
-            }
+            element={<LeatherPage cartItems={cart} />}
           />
           <Route
             path="/handtools"
-            element={
-              <HandToolsPage
-                cartItems={cart}
-                token={token}
-                setToken={handleSetToken}
-              />
-            }
+            element={<HandToolsPage cartItems={cart} />}
           />
           <Route
             path="/molds"
-            element={
-              <MoldsPage
-                cartItems={cart}
-                token={token}
-                setToken={handleSetToken}
-              />
-            }
+            element={<MoldsPage cartItems={cart} />}
           />
+          <Route path="/thank-you" element={<ThankYouPage />} />
           <Route
             path="/product/:id"
             element={
               <ProductPage
                 addToCart={addToCart}
                 cartItems={cart} 
-                token={token} 
-                setToken={handleSetToken} 
               />
             }
           />
@@ -126,14 +108,15 @@ function App() {
                 cartItems={cart}
                 removeFromCart={removeFromCart}
                 token={token}
-                setToken={handleSetToken} 
               />
             }
           />
           <Route
             path="/checkout"
-            element={<CheckoutPage token={token} />} 
+            element={<CheckoutPage token={token} />}
           />
+          {/* Fallback Route */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
         <Footer />
       </div>

@@ -1,81 +1,80 @@
-const express = require('express');
-const knex = require('knex');
-const cors = require('cors');
-const dotenv = require('dotenv');
-const bcrypt = require('bcrypt');
+const express = require("express");
+const knex = require("knex");
+const cors = require("cors");
+const dotenv = require("dotenv");
+const bcrypt = require("bcrypt");
+const bodyParser = require("body-parser");
 const { authenticate } = require("./authorization/authMiddleware.js");
-
-
+const stripe = require("stripe")("sk_test_51Nf3pGJ6VhgbPvzwGQrIl6rup1lZRdWBAlDR8gXkVH4fMb70J3Z4TtJOXLNepyzX83Dw4IXsg9Jm1wGa4I7eA2kl00AJuQ7mF7");
 
 dotenv.config();
 
-const knexConfig = require('./knexfile.js')[process.env.NODE_ENV || 'development'];
+const knexConfig = require("./knexfile.js")[process.env.NODE_ENV || "development"];
 const db = knex(knexConfig);
 const jwt = require("jsonwebtoken");
-
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.use("/webhook", bodyParser.raw({ type: "application/json" })); // Required for Stripe webhook
 
-app.get('/', (req, res) => {
-  res.send('Server is running!');
+// Routes
+app.get("/", (req, res) => {
+  res.send("Server is running!");
 });
 
-app.get('/users', async (req, res) => {
+// Get users
+app.get("/users", async (req, res) => {
   try {
-    const users = await db('users').select('id', 'username', 'email', 'password');
+    const users = await db("users").select("id", "username", "email", "password");
     res.status(200).json(users);
   } catch (error) {
-    console.error('Error fetching users:', error);
-    res.status(500).json({ error: 'Failed to fetch users.' });
+    console.error("Error fetching users:", error);
+    res.status(500).json({ error: "Failed to fetch users." });
   }
 });
 
-  
-  app.post('/login', async (req, res) => {
-    const { email, password } = req.body;
-  
-    try {
-      const user = await db('users').where({ email }).first();
-      if (!user) {
-        console.error("User not found for email:", email);
-        return res.status(401).json({ error: 'Invalid credentials' });
-      }
-  
-      const isPasswordValid = await bcrypt.compare(password, user.password);
-      if (!isPasswordValid) {
-        console.error("Invalid password for email:", email);
-        return res.status(401).json({ error: 'Invalid credentials' });
-      }
-  
-      const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-      console.log("Generated JWT Token:", token);
-  
-      res.status(200).json({ message: 'Login successful', token });
-    } catch (error) {
-      console.error('Error during login:', error.message);
-      res.status(500).json({ error: 'Failed to log in.' });
+// Login route
+app.post("/login", async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const user = await db("users").where({ email }).first();
+    if (!user) {
+      return res.status(401).json({ error: "Invalid credentials" });
     }
-  });
 
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({ error: "Invalid credentials" });
+    }
 
-app.post('/register', async (req, res) => {
+    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: "1h" });
+
+    res.status(200).json({ message: "Login successful", token });
+  } catch (error) {
+    console.error("Error during login:", error.message);
+    res.status(500).json({ error: "Failed to log in." });
+  }
+});
+
+// Register route
+app.post("/register", async (req, res) => {
   const { username, email, password, address } = req.body;
 
   try {
-    const existingUser = await db('users').where({ email }).orWhere({ username }).first();
+    const existingUser = await db("users").where({ email }).orWhere({ username }).first();
     if (existingUser) {
-      return res.status(400).json({ error: 'Email or username already exists.' });
+      return res.status(400).json({ error: "Email or username already exists." });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const [userId] = await db('users').insert({ username, email, password: hashedPassword });
+    const [userId] = await db("users").insert({ username, email, password: hashedPassword });
 
     if (address) {
-      await db('addresses').insert({
+      await db("addresses").insert({
         user_id: userId,
         street: address.street,
         city: address.city,
@@ -85,93 +84,101 @@ app.post('/register', async (req, res) => {
       });
     }
 
-    res.status(201).json({ message: 'User registered successfully!' });
+    res.status(201).json({ message: "User registered successfully!" });
   } catch (error) {
-    console.error('Error during registration:', error);
-    res.status(500).json({ error: 'Failed to register user.' });
+    console.error("Error during registration:", error);
+    res.status(500).json({ error: "Failed to register user." });
   }
 });
 
-app.get('/account', authenticate, async (req, res) => {
-    console.log("Authenticated userId:", req.userId);
-  
-    try {
-      const user = await db('users')
-        .where({ id: req.userId })
-        .select('username', 'email')
-        .first();
-  
-      const address = await db('addresses')
-        .where({ user_id: req.userId })
-        .select('street', 'city', 'state', 'zip', 'country')
-        .first();
-  
-        const orders = await db('orders')
-        .where({ user_id: req.userId })
-        .select('id', 'total_price as total');
-  
-      if (user) {
-        res.status(200).json({
-          user: {
-            ...user,
-            address: address
-              ? `${address.street}, ${address.city}, ${address.state}, ${address.zip}, ${address.country}`
-              : null,
-          },
-          orders,
-        });
-      } else {
-        res.status(404).json({ error: 'User not found' });
-      }
-    } catch (error) {
-      console.error('Failed to fetch account data:', error.message);
-      res.status(500).json({ error: 'Failed to fetch account data.' });
-    }
-  });
-
-app.get('/api/categories', async (req, res) => {
+// Account route
+app.get("/account", authenticate, async (req, res) => {
   try {
-    const categories = await db('categories').select('*');
+    const user = await db("users").where({ id: req.userId }).select("username", "email").first();
+
+    const address = await db("addresses")
+      .where({ user_id: req.userId })
+      .select("street", "city", "state", "zip", "country")
+      .first();
+
+    const orders = await db("orders")
+      .where({ user_id: req.userId })
+      .select("id", "total_price as total");
+
+    if (user) {
+      res.status(200).json({
+        user: {
+          ...user,
+          address: address
+            ? {
+                street: address.street,
+                city: address.city,
+                state: address.state,
+                zip: address.zip,
+                country: address.country,
+              }
+            : null,
+        },
+        orders,
+      });
+    } else {
+      res.status(404).json({ error: "User not found" });
+    }
+  } catch (error) {
+    console.error("Failed to fetch account data:", error.message);
+    res.status(500).json({ error: "Failed to fetch account data." });
+  }
+});
+
+// Categories route
+app.get("/api/categories", async (req, res) => {
+  try {
+    const categories = await db("categories").select("*");
     res.json(categories);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to retrieve categories' });
+    res.status(500).json({ error: "Failed to retrieve categories" });
   }
 });
 
-app.get('/api/products', async (req, res) => {
+// Products route
+app.get("/api/products", async (req, res) => {
   const { categoryId } = req.query;
   try {
     const products = categoryId
-      ? await db('products').where({ category_id: categoryId }).select('*')
-      : await db('products').select('*');
+      ? await db("products").where({ category_id: categoryId }).select("*")
+      : await db("products").select("*");
     res.json(products);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to retrieve products' });
+    res.status(500).json({ error: "Failed to retrieve products" });
   }
 });
 
-app.get('/api/products/:id', async (req, res) => {
+// Single product route
+app.get("/api/products/:id", async (req, res) => {
   const { id } = req.params;
   try {
-    const product = await db('products').where({ id }).first();
+    const product = await db("products").where({ id }).first();
     if (product) {
       res.status(200).json(product);
     } else {
       res.status(404).json({ error: `Product with ID ${id} not found` });
     }
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Failed to retrieve product' });
+    res.status(500).json({ error: "Failed to retrieve product" });
   }
 });
 
-app.post('/api/orders', async (req, res) => {
-  const { userId, items } = req.body;
+// Orders route
+app.post("/api/orders", authenticate, async (req, res) => {
+  const { items } = req.body;
+
   try {
-    const [orderId] = await db('orders').insert({
-      user_id: userId,
-      status: 'Processing',
-      total_price: items.reduce((total, item) => total + item.price * item.quantity, 0),
+    const totalPrice = items.reduce((total, item) => total + item.price * item.quantity, 0);
+
+    const [orderId] = await db("orders").insert({
+      user_id: req.userId,
+      status: "Processing",
+      total_price: totalPrice,
     });
 
     const orderItems = items.map((item) => ({
@@ -180,27 +187,70 @@ app.post('/api/orders', async (req, res) => {
       quantity: item.quantity,
     }));
 
-    await db('order_items').insert(orderItems);
+    await db("order_items").insert(orderItems);
 
-    res.status(201).json({ orderId, status: 'Processing', items });
+    res.status(201).json({ orderId, status: "Processing", items });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to create order' });
+    res.status(500).json({ error: "Failed to create order" });
   }
 });
 
-app.get('/api/orders/:userId', authenticate, async (req, res) => {
-  const { userId } = req.params;
-  if (req.userId !== Number(userId)) {
-    return res.status(403).json({ error: 'Unauthorized access' });
-  }
+// Stripe Payment Intent
+app.post("/create-payment-intent", async (req, res) => {
+    //console.log("Route hit: /create-payment-intent");
+
+    const { amount } = req.body;
+  
+    if (!amount) {
+      return res.status(400).json({ error: "Amount is required." });
+    }
+  
+    try {
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount, // Amount in cents
+        currency: "usd",
+        payment_method_types: ["card"], // Only card payments
+      });
+  
+      res.status(200).json({ clientSecret: paymentIntent.client_secret });
+    } catch (error) {
+      console.error("Error creating payment intent:", error.message);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+// Stripe Webhook
+const endpointSecret = "wwhsec_4ca11e911f9f9ec20aca42fa3d30f6456d5bc9c201e3541e450606d9cbbf79e0"; // Replace with your webhook secret
+
+app.post("/webhook", (req, res) => {
+  const sig = req.headers["stripe-signature"];
+  let event;
+
   try {
-    const orders = await db('orders').where({ user_id: req.userId }).select('*');
-    res.json(orders);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to retrieve orders' });
+    event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
+  } catch (err) {
+    console.error("Webhook signature verification failed:", err.message);
+    res.status(400).send(`Webhook Error: ${err.message}`);
+    return;
   }
+
+  switch (event.type) {
+    case "payment_intent.succeeded":
+      console.log("PaymentIntent succeeded:", event.data.object);
+      break;
+
+    case "payment_intent.payment_failed":
+      console.log("PaymentIntent failed:", event.data.object);
+      break;
+
+    default:
+      console.log(`Unhandled event type ${event.type}`);
+  }
+
+  res.status(200).send();
 });
 
+// Start server
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
