@@ -93,9 +93,29 @@ const AccountPage = ({ token, setToken }) => {
             <p>
               <strong>Email:</strong> {user.email}
             </p>
-            <p>
-              <strong>Address:</strong> {user.address || "No address provided"}
-            </p>
+            {user.address ? (
+              <div>
+                <p>
+                  <strong>Street:</strong> {user.address.street}
+                </p>
+                <p>
+                  <strong>City:</strong> {user.address.city}
+                </p>
+                <p>
+                  <strong>State:</strong> {user.address.state}
+                </p>
+                <p>
+                  <strong>Postal Code:</strong> {user.address.postal_code}
+                </p>
+                <p>
+                  <strong>Country:</strong> {user.address.country}
+                </p>
+              </div>
+            ) : (
+              <p>
+                <strong>Address:</strong> No address provided
+              </p>
+            )}
           </div>
           <h2 className="order-history-title">Order History</h2>
           <ul className="order-list">
@@ -119,7 +139,7 @@ const AccountPage = ({ token, setToken }) => {
               Need to continue shopping? Check out your{" "}
               <Link to="/cart">Shopping Cart</Link>.
             </p>
-          </div> {/* ADDED */}
+          </div>
         </div>
       </div>
     </>
