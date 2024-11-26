@@ -37,11 +37,10 @@ app.get("/users", async (req, res) => {
 });
 
 app.get("/user/address", authenticate, async (req, res) => {
-  console.log("Middleware passed. User ID:", req.userId); // Ensure middleware sets req.userId
+  console.log("Middleware passed. User ID:", req.userId); 
   try {
     const address = await db("addresses").where({ user_id: req.userId }).first();
-    console.log("Address Retrieved:", address); // Log the fetched address
-
+    console.log("Address Retrieved:", address); 
     if (!address) {
       console.error("No address found for User ID:", req.userId);
       return res.status(404).json({ error: "No address found." });
@@ -50,6 +49,40 @@ app.get("/user/address", authenticate, async (req, res) => {
   } catch (error) {
     console.error("Error fetching address:", error.message);
     res.status(500).json({ error: "Failed to fetch address." });
+  }
+});
+
+app.put("/user/address", authenticate, async (req, res) => {
+  const { street, city, state, zip, country } = req.body;
+
+  if (!street || !city || !state || !zip || !country) {
+    return res.status(400).json({ error: "All address fields are required." });
+  }
+
+  try {
+    const existingAddress = await db("addresses").where({ user_id: req.userId }).first();
+
+    if (existingAddress) {
+      await db("addresses")
+        .where({ user_id: req.userId })
+        .update({ street, city, state, zip, country });
+      console.log("Updated existing address for user ID:", req.userId);
+    } else {
+      await db("addresses").insert({
+        user_id: req.userId,
+        street,
+        city,
+        state,
+        zip,
+        country,
+      });
+      console.log("Added new address for user ID:", req.userId);
+    }
+
+    res.status(200).json({ message: "Address saved successfully." });
+  } catch (error) {
+    console.error("Error saving address:", error.message);
+    res.status(500).json({ error: "Failed to save address." });
   }
 });
 
@@ -225,7 +258,6 @@ app.post("/create-payment-intent", authenticate, async (req, res) => {
   console.log("Request Body:", req.body);
 
   try {
-    // Update the user's name if it is provided in the shipping address
     if (shippingAddress.name) {
       await db("users")
         .where({ id: req.userId })
@@ -233,52 +265,69 @@ app.post("/create-payment-intent", authenticate, async (req, res) => {
       console.log(`Updated user name for user ID ${req.userId}: ${shippingAddress.name}`);
     }
 
-    // Generate current date in the required format
-    const currentDate = new Date().toISOString().slice(0, 19).replace("T", " "); // Added currentDate variable
-    console.log("Current Date:", currentDate); // Log the generated date for debugging
+    const existingAddress = await db("addresses").where({ user_id: req.userId }).first();
 
-    // Insert order data into the database
-    const [order] = await db("orders")
-      .returning("id") // Ensure this returns the inserted ID
-      .insert({
+    if (existingAddress) {
+      await db("addresses")
+        .where({ user_id: req.userId })
+        .update({
+          street: shippingAddress.street,
+          city: shippingAddress.city,
+          state: shippingAddress.state,
+          zip: shippingAddress.zip,
+          country: shippingAddress.country,
+        });
+      console.log("Updated existing address for user ID:", req.userId);
+    } else {
+      await db("addresses").insert({
         user_id: req.userId,
-        status: "pending",
-        total_price: (amount / 100).toFixed(2),
-        order_date: currentDate, // Use the formatted currentDate here
+        street: shippingAddress.street,
+        city: shippingAddress.city,
+        state: shippingAddress.state,
+        zip: shippingAddress.zip,
+        country: shippingAddress.country,
       });
+      console.log("Inserted new address for user ID:", req.userId);
+    }
 
-    const orderId = order.id.toString(); // Extract ID from the returned order
+    const currentDate = new Date().toISOString().slice(0, 19).replace("T", " ");
+    console.log("Current Date:", currentDate);
+
+    const insertOrderQuery = await db("orders").insert({
+      user_id: req.userId,
+      status: "pending",
+      total_price: (amount / 100).toFixed(2),
+      order_date: currentDate,
+    });
+    const orderId = insertOrderQuery[0]; 
     console.log("Order Created with ID:", orderId);
 
-    // Insert order items into the database
     const orderItems = products.map((product) => ({
       order_id: orderId,
       product_id: product.productId,
       price: product.price,
       quantity: product.quantity,
-      created_at: currentDate, // Use currentDate for created_at
-      updated_at: currentDate, // Use currentDate for updated_at
+      created_at: currentDate,
+      updated_at: currentDate,
     }));
 
     await db("order_items").insert(orderItems);
     console.log("Order Items Inserted:", orderItems);
 
-    // Create Stripe payment intent with metadata
     const paymentIntent = await stripe.paymentIntents.create({
       amount,
       currency: "usd",
       payment_method_types: ["card"],
-      metadata: { orderId }, // Include orderId as metadata
+      metadata: { orderId: orderId.toString() }, 
     });
 
     console.log("Stripe Payment Intent Created:", paymentIntent);
 
-    // Respond with the clientSecret and orderId
     console.log("Response Sent:", { clientSecret: paymentIntent.client_secret, orderId });
     res.status(200).json({ clientSecret: paymentIntent.client_secret, orderId });
   } catch (error) {
     console.error("Error creating payment intent:", error.message);
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: "Failed to create payment intent." });
   }
 });
   
@@ -327,4 +376,4 @@ app.post("/create-payment-intent", authenticate, async (req, res) => {
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
-});
+}); 

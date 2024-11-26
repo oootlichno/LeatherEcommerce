@@ -245,4 +245,7 @@ const CheckoutForm = ({ navigate, token }) => {
   );
 };
 
-export default CheckoutPage;
+export default CheckoutPage; 
+
+
+
