@@ -225,6 +225,7 @@ app.post("/create-payment-intent", authenticate, async (req, res) => {
   console.log("Request Body:", req.body);
 
   try {
+    // Update the user's name if it is provided in the shipping address
     if (shippingAddress.name) {
       await db("users")
         .where({ id: req.userId })
@@ -232,16 +233,21 @@ app.post("/create-payment-intent", authenticate, async (req, res) => {
       console.log(`Updated user name for user ID ${req.userId}: ${shippingAddress.name}`);
     }
 
+    // Generate current date in the required format
+    const currentDate = new Date().toISOString().slice(0, 19).replace("T", " "); // Added currentDate variable
+    console.log("Current Date:", currentDate); // Log the generated date for debugging
+
+    // Insert order data into the database
     const [order] = await db("orders")
-      .returning("id") 
+      .returning("id") // Ensure this returns the inserted ID
       .insert({
         user_id: req.userId,
         status: "pending",
         total_price: (amount / 100).toFixed(2),
-        order_date: new Date(),
+        order_date: currentDate, // Use the formatted currentDate here
       });
 
-    const orderId = order.id.toString(); 
+    const orderId = order.id.toString(); // Extract ID from the returned order
     console.log("Order Created with ID:", orderId);
 
     // Insert order items into the database
@@ -250,22 +256,24 @@ app.post("/create-payment-intent", authenticate, async (req, res) => {
       product_id: product.productId,
       price: product.price,
       quantity: product.quantity,
-      created_at: new Date(),
-      updated_at: new Date(),
+      created_at: currentDate, // Use currentDate for created_at
+      updated_at: currentDate, // Use currentDate for updated_at
     }));
 
     await db("order_items").insert(orderItems);
     console.log("Order Items Inserted:", orderItems);
 
+    // Create Stripe payment intent with metadata
     const paymentIntent = await stripe.paymentIntents.create({
       amount,
       currency: "usd",
       payment_method_types: ["card"],
-      metadata: { orderId }, 
+      metadata: { orderId }, // Include orderId as metadata
     });
 
     console.log("Stripe Payment Intent Created:", paymentIntent);
 
+    // Respond with the clientSecret and orderId
     console.log("Response Sent:", { clientSecret: paymentIntent.client_secret, orderId });
     res.status(200).json({ clientSecret: paymentIntent.client_secret, orderId });
   } catch (error) {
