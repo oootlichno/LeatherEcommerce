@@ -10,7 +10,7 @@ const RegisterPage = () => {
       street: "",
       city: "",
       state: "",
-      postal_code: "",
+      zip: "",
       country: "",
     },
   });
@@ -105,14 +105,14 @@ const RegisterPage = () => {
           />
         </div>
         <div className="form-group">
-          <label>Postal Code</label>
+          <label>ZIP</label>
           <input
             type="text"
-            placeholder="Enter your postal code"
+            placeholder="Enter your zip code"
             onChange={(e) =>
               setForm({
                 ...form,
-                address: { ...form.address, postal_code: e.target.value },
+                address: { ...form.address, zip: e.target.value },
               })
             }
             required

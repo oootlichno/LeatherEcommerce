@@ -1,4 +1,8 @@
 const { db, resetDatabase } = require('./dbSetup');
+const request = require('supertest');
+const app = require('../src/App'); // Replace with your app's entry point
+
+
 
 beforeAll(async () => {
   await resetDatabase();
@@ -43,5 +47,25 @@ describe('Database Tests', () => {
     const orderItems = await db('order_items').where({ order_id: 1 });
     expect(orderItems).toHaveLength(2);
     expect(orderItems[0]).toHaveProperty('product_id', 1);
+  });
+});
+
+describe('POST /create-payment-intent', () => {
+  it('creates a payment intent and order', async () => {
+    const res = await request(app)
+      .post('/create-payment-intent')
+      .set('Authorization', `Bearer valid_token`) // Replace with valid token logic
+      .send({
+        amount: 5000,
+        shippingAddressId: 1,
+        products: [
+          { productId: 1, price: 1000, quantity: 2 },
+          { productId: 2, price: 3000, quantity: 1 }
+        ]
+      });
+    
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toHaveProperty('clientSecret');
+    expect(res.body).toHaveProperty('orderId');
   });
 });

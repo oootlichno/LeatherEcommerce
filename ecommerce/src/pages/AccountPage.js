@@ -88,7 +88,10 @@ const AccountPage = ({ token, setToken }) => {
           <h1 className="account-title">Account Details</h1>
           <div className="account-details">
             <p>
-              <strong>Name:</strong> {user.username}
+              <strong>Name:</strong> {user.name}
+            </p>
+            <p>
+              <strong>Username:</strong> {user.username}
             </p>
             <p>
               <strong>Email:</strong> {user.email}
@@ -105,7 +108,7 @@ const AccountPage = ({ token, setToken }) => {
                   <strong>State:</strong> {user.address.state}
                 </p>
                 <p>
-                  <strong>Postal Code:</strong> {user.address.postal_code}
+                  <strong>ZIP:</strong> {user.address.zip}
                 </p>
                 <p>
                   <strong>Country:</strong> {user.address.country}
