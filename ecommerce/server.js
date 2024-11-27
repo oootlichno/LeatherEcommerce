@@ -25,6 +25,82 @@ app.get("/", (req, res) => {
   res.send("Server is running!");
 });
 
+// --- NEW CART ENDPOINT ---
+app.get("/cart", authenticate, async (req, res) => {
+  try {
+    console.log("Fetching cart for user ID:", req.userId);
+
+    const cartItems = await db("cart")
+      .where({ user_id: req.userId })
+      .select("product_id as productId", "price", "quantity");
+
+    if (cartItems.length === 0) {
+      console.warn(`No cart items found for user ID: ${req.userId}`);
+      return res.status(404).json({ cart: [] });
+    }
+
+    console.log("Cart retrieved:", cartItems);
+    res.status(200).json({ cart: cartItems });
+  } catch (error) {
+    console.error("Error fetching cart items:", error.message);
+    res.status(500).json({ error: "Failed to fetch cart items" });
+  }
+});
+
+// Other routes...
+
+// Example: Add a product to the cart
+app.post("/cart", authenticate, async (req, res) => {
+  const { productId, price, quantity } = req.body;
+
+  if (!productId || !price || !quantity) {
+    return res.status(400).json({ error: "Product ID, price, and quantity are required" });
+  }
+
+  try {
+    const existingItem = await db("cart")
+      .where({ user_id: req.userId, product_id: productId })
+      .first();
+
+    if (existingItem) {
+      await db("cart")
+        .where({ user_id: req.userId, product_id: productId })
+        .update({
+          quantity: existingItem.quantity + quantity,
+          updated_at: new Date(),
+        });
+      console.log(`Updated quantity for product ID: ${productId}`);
+    } else {
+      await db("cart").insert({
+        user_id: req.userId,
+        product_id: productId,
+        price,
+        quantity,
+        created_at: new Date(),
+        updated_at: new Date(),
+      });
+      console.log(`Added new product to cart for user ID: ${req.userId}`);
+    }
+
+    res.status(200).json({ message: "Product added to cart successfully" });
+  } catch (error) {
+    console.error("Error adding product to cart:", error.message);
+    res.status(500).json({ error: "Failed to add product to cart" });
+  }
+});
+
+// Clear cart
+app.delete("/cart", authenticate, async (req, res) => {
+  try {
+    await db("cart").where({ user_id: req.userId }).del();
+    console.log(`Cleared cart for user ID: ${req.userId}`);
+    res.status(200).json({ message: "Cart cleared successfully" });
+  } catch (error) {
+    console.error("Error clearing cart:", error.message);
+    res.status(500).json({ error: "Failed to clear cart" });
+  }
+});
+
 // Get users
 app.get("/users", async (req, res) => {
   try {
@@ -224,24 +300,44 @@ app.post("/api/orders", authenticate, async (req, res) => {
   const { items } = req.body;
 
   try {
-    const totalPrice = items.reduce((total, item) => total + item.price * item.quantity, 0);
+    // Fetch product prices from the database dynamically
+    const productIds = items.map((item) => item.productId);
+    const products = await db("products")
+      .whereIn("id", productIds)
+      .select("id", "price");
 
+    // Map product IDs to their prices
+    const productPriceMap = products.reduce((acc, product) => {
+      acc[product.id] = product.price;
+      return acc;
+    }, {});
+
+    // Calculate total price dynamically
+    const totalPrice = items.reduce((total, item) => {
+      const productPrice = productPriceMap[item.productId];
+      return total + productPrice * item.quantity;
+    }, 0);
+
+    // Insert new order
     const [orderId] = await db("orders").insert({
       user_id: req.userId,
       status: "Processing",
       total_price: totalPrice,
     });
 
+    // Create order_items using dynamic product prices
     const orderItems = items.map((item) => ({
       order_id: orderId,
       product_id: item.productId,
+      price: productPriceMap[item.productId], // Dynamically fetched price
       quantity: item.quantity,
     }));
 
     await db("order_items").insert(orderItems);
 
-    res.status(201).json({ orderId, status: "Processing", items });
+    res.status(201).json({ orderId, status: "Processing", items: orderItems });
   } catch (error) {
+    console.error("Error creating order:", error.message);
     res.status(500).json({ error: "Failed to create order" });
   }
 });

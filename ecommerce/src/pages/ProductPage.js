@@ -4,7 +4,7 @@ import logo from "../style/img/logo.png";
 import productImage from "../style/img/leather.png";
 import CartComponent from "../components/CartComponent";
 
-const ProductPage = ({ addToCart, cartItems, token, setToken }) => { // ADDED cartItems, token, setToken
+const ProductPage = ({ addToCart, cartItems, token, setToken }) => { 
   const { id } = useParams();
   const [product, setProduct] = useState(null);
   const [quantity, setQuantity] = useState(1);
