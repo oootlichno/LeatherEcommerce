@@ -46,7 +46,6 @@ const CheckoutForm = ({ navigate, token }) => {
   const [cartItems, setCartItems] = useState([]);
   const [isCartLoaded, setIsCartLoaded] = useState(false);
 
-  // Fetch user's address and name
   useEffect(() => {
     const fetchAddress = async () => {
       try {
@@ -127,7 +126,7 @@ const CheckoutForm = ({ navigate, token }) => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    console.log("Cart items before submission:", cartItems);
+    console.log("handleSubmit called");
   
     if (!stripe || !elements) return;
   
@@ -163,7 +162,8 @@ const CheckoutForm = ({ navigate, token }) => {
       }
   
       const { clientSecret, orderId } = await response.json();
-  
+      console.log("Payment Intent created. Order ID:", orderId);
+
       const paymentResult = await stripe.confirmCardPayment(clientSecret, {
         payment_method: {
           card: elements.getElement(CardElement),

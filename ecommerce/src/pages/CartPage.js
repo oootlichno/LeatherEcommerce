@@ -14,8 +14,12 @@ const CartPage = ({ cartItems, removeFromCart, token, setToken }) => {
   const syncCartWithBackend = useCallback(async () => {
     if (!token) return;
 
+    console.log("syncCartWithBackend called");
+
+
     try {
       for (const item of cartItems) {
+        console.log("Syncing cart item:", item);
         const response = await fetch("http://localhost:5001/cart", {
           method: "POST",
           headers: {
@@ -31,6 +35,9 @@ const CartPage = ({ cartItems, removeFromCart, token, setToken }) => {
 
         if (!response.ok) {
           console.error(`Failed to sync item ${item.id} to the backend`);
+        }
+        else {
+          console.log(`Item ${item.id} synced successfully`);
         }
       }
       console.log("Cart synced with backend successfully");
@@ -59,7 +66,7 @@ const CartPage = ({ cartItems, removeFromCart, token, setToken }) => {
     if (token) {
       syncCartWithBackend();
     }
-  }, [cartItems, token, syncCartWithBackend]); 
+  }, [/* cartItems, */ token, syncCartWithBackend]); 
 
   return (
     <div>

@@ -63,7 +63,8 @@ app.post("/cart", authenticate, async (req, res) => {
       await db("cart")
         .where({ user_id: req.userId, product_id: productId })
         .update({
-          quantity: existingItem.quantity + quantity,
+          //quantity: existingItem.quantity + quantity,
+          quantity,
           updated_at: new Date(),
         });
       console.log(`Updated quantity for product ID: ${productId}`);
