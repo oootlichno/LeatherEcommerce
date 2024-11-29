@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, useState } from "react";
+import React, { useEffect, useCallback, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import logo from "../style/img/logo.png";
 import CartComponent from "../components/CartComponent";
@@ -6,20 +6,20 @@ import productImage from "../style/img/leather.png";
 
 const CartPage = ({ cartItems, removeFromCart, token, setToken }) => {
   const navigate = useNavigate();
+  const syncRef = useRef(false); 
+  const cartItemsRef = useRef(cartItems); 
+
   const itemCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
   const totalPrice = cartItems
     .reduce((sum, item) => sum + item.price * item.quantity, 0)
     .toFixed(2);
 
-  const [isSyncing, setIsSyncing] = useState(false); 
-
   const syncCartWithBackend = useCallback(async () => {
-    if (!token || isSyncing) return; 
+    if (!token) return;
 
     console.log("syncCartWithBackend called");
 
     try {
-      setIsSyncing(true); 
       for (const item of cartItems) {
         console.log("Syncing cart item:", item);
         const response = await fetch("http://localhost:5001/cart", {
@@ -45,9 +45,9 @@ const CartPage = ({ cartItems, removeFromCart, token, setToken }) => {
     } catch (error) {
       console.error("Error syncing cart with backend:", error.message);
     } finally {
-      setIsSyncing(false); 
+      syncRef.current = false; 
     }
-  }, [cartItems, token, isSyncing]);
+  }, [cartItems, token]);
 
   const handleCheckout = async () => {
     if (!token) {
@@ -66,10 +66,15 @@ const CartPage = ({ cartItems, removeFromCart, token, setToken }) => {
   };
 
   useEffect(() => {
-    if (token) {
-      syncCartWithBackend(); 
+    if (token && !syncRef.current) {
+      syncRef.current = true;
+
+      if (cartItemsRef.current !== cartItems) {
+        cartItemsRef.current = cartItems;
+        syncCartWithBackend();
+      }
     }
-  }, [token, syncCartWithBackend]); 
+  }, [token, cartItems, syncCartWithBackend]);
 
   return (
     <div>
