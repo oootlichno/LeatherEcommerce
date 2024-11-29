@@ -42,7 +42,7 @@ const ProductPage = ({ addToCart, cartItems, token, setToken }) => {
 
   const handleAddToCart = () => {
     if (product) {
-      addToCart(product, quantity); // Update cart
+      addToCart(product, quantity); 
     }
   };
 

@@ -1,9 +1,8 @@
-import React from "react";
+import React, { useEffect, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import logo from "../style/img/logo.png";
 import CartComponent from "../components/CartComponent";
 import productImage from "../style/img/leather.png";
-
 
 const CartPage = ({ cartItems, removeFromCart, token, setToken }) => {
   const navigate = useNavigate();
@@ -12,11 +11,40 @@ const CartPage = ({ cartItems, removeFromCart, token, setToken }) => {
     .reduce((sum, item) => sum + item.price * item.quantity, 0)
     .toFixed(2);
 
-  const handleCheckout = () => {
+  const syncCartWithBackend = useCallback(async () => {
+    if (!token) return;
+
+    try {
+      for (const item of cartItems) {
+        const response = await fetch("http://localhost:5001/cart", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            productId: item.id,
+            price: item.price,
+            quantity: item.quantity,
+          }),
+        });
+
+        if (!response.ok) {
+          console.error(`Failed to sync item ${item.id} to the backend`);
+        }
+      }
+      console.log("Cart synced with backend successfully");
+    } catch (error) {
+      console.error("Error syncing cart with backend:", error.message);
+    }
+  }, [cartItems, token]);
+
+  const handleCheckout = async () => {
     if (!token) {
       alert("Please log in to make a purchase or create an account.");
       navigate("/login");
     } else {
+      await syncCartWithBackend(); 
       navigate("/checkout");
     }
   };
@@ -26,6 +54,12 @@ const CartPage = ({ cartItems, removeFromCart, token, setToken }) => {
     localStorage.removeItem("token");
     navigate("/");
   };
+
+  useEffect(() => {
+    if (token) {
+      syncCartWithBackend();
+    }
+  }, [cartItems, token, syncCartWithBackend]); 
 
   return (
     <div>

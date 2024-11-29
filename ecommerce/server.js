@@ -20,12 +20,11 @@ app.use(cors());
 app.use(express.json());
 app.use("/webhook", bodyParser.raw({ type: "application/json" })); 
 
-// Routes
 app.get("/", (req, res) => {
   res.send("Server is running!");
 });
 
-// --- NEW CART ENDPOINT ---
+// CART ENDPOINTS
 app.get("/cart", authenticate, async (req, res) => {
   try {
     console.log("Fetching cart for user ID:", req.userId);
@@ -47,9 +46,7 @@ app.get("/cart", authenticate, async (req, res) => {
   }
 });
 
-// Other routes...
 
-// Example: Add a product to the cart
 app.post("/cart", authenticate, async (req, res) => {
   const { productId, price, quantity } = req.body;
 
@@ -89,7 +86,6 @@ app.post("/cart", authenticate, async (req, res) => {
   }
 });
 
-// Clear cart
 app.delete("/cart", authenticate, async (req, res) => {
   try {
     await db("cart").where({ user_id: req.userId }).del();
@@ -101,7 +97,7 @@ app.delete("/cart", authenticate, async (req, res) => {
   }
 });
 
-// Get users
+// Users Endpoint
 app.get("/users", async (req, res) => {
   try {
     const users = await db("users").select("id", "username", "email", "password");
@@ -280,7 +276,7 @@ app.get("/api/products", async (req, res) => {
   }
 });
 
-// Single product route
+// product route
 app.get("/api/products/:id", async (req, res) => {
   const { id } = req.params;
   try {
@@ -300,36 +296,31 @@ app.post("/api/orders", authenticate, async (req, res) => {
   const { items } = req.body;
 
   try {
-    // Fetch product prices from the database dynamically
     const productIds = items.map((item) => item.productId);
     const products = await db("products")
       .whereIn("id", productIds)
       .select("id", "price");
 
-    // Map product IDs to their prices
     const productPriceMap = products.reduce((acc, product) => {
       acc[product.id] = product.price;
       return acc;
     }, {});
 
-    // Calculate total price dynamically
     const totalPrice = items.reduce((total, item) => {
       const productPrice = productPriceMap[item.productId];
       return total + productPrice * item.quantity;
     }, 0);
 
-    // Insert new order
     const [orderId] = await db("orders").insert({
       user_id: req.userId,
       status: "Processing",
       total_price: totalPrice,
     });
 
-    // Create order_items using dynamic product prices
     const orderItems = items.map((item) => ({
       order_id: orderId,
       product_id: item.productId,
-      price: productPriceMap[item.productId], // Dynamically fetched price
+      price: productPriceMap[item.productId], 
       quantity: item.quantity,
     }));
 
@@ -342,7 +333,6 @@ app.post("/api/orders", authenticate, async (req, res) => {
   }
 });
 
-// Stripe Payment Intent
 app.post("/create-payment-intent", authenticate, async (req, res) => {
   const { amount, shippingAddress, products } = req.body;
 
@@ -395,7 +385,7 @@ app.post("/create-payment-intent", authenticate, async (req, res) => {
       total_price: (amount / 100).toFixed(2),
       order_date: currentDate,
     });
-    const orderId = insertOrderQuery[0]; 
+    const orderId = insertOrderQuery[0];
     console.log("Order Created with ID:", orderId);
 
     const orderItems = products.map((product) => ({
@@ -410,11 +400,14 @@ app.post("/create-payment-intent", authenticate, async (req, res) => {
     await db("order_items").insert(orderItems);
     console.log("Order Items Inserted:", orderItems);
 
+    const amountInCents = Math.round(amount);
+    console.log("Amount converted to cents:", amountInCents);
+
     const paymentIntent = await stripe.paymentIntents.create({
-      amount,
+      amount: amountInCents, 
       currency: "usd",
       payment_method_types: ["card"],
-      metadata: { orderId: orderId.toString() }, 
+      metadata: { orderId: orderId.toString() },
     });
 
     console.log("Stripe Payment Intent Created:", paymentIntent);
