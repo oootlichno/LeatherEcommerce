@@ -1,23 +1,52 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import leather from "../style/img/leather.png";
 import handtools from "../style/img/handtools.png";
 import molds from "../style/img/molds.png";
 import logo from "../style/img/logo.png";
-import CartComponent from "../components/CartComponent"; 
+import CartComponent from "../components/CartComponent";
 
-const HomePage = ({ token, setToken, cartItems }) => { 
+const HomePage = ({ token, setToken, cartItems, setCartItems }) => {
   const handleLogout = () => {
     setToken(null);
     localStorage.removeItem("token");
   };
+
+  useEffect(() => {
+    const fetchCart = async () => {
+      if (!token) {
+        setCartItems([]); 
+        return;
+      }
+
+      try {
+        const response = await fetch("http://localhost:5001/cart", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (response.ok) {
+          const { cart } = await response.json();
+          setCartItems(cart); 
+        } else {
+          setCartItems([]); 
+        }
+      } catch (error) {
+        console.error("Error fetching cart data:", error.message);
+        setCartItems([]); 
+      }
+    };
+
+    fetchCart(); 
+  }, [token, setCartItems]);
 
   return (
     <div>
       {/* Header Section */}
       <div className="header">
         <div className="cart-container">
-          <CartComponent cartItems={cartItems} /> {/* ADDED */}
+          <CartComponent cartItems={cartItems} />
         </div>
         <div className="logo">
           <Link to="/">
@@ -25,18 +54,12 @@ const HomePage = ({ token, setToken, cartItems }) => {
           </Link>
         </div>
         <div className="nav">
-         {/*  <Link to="/" className="nav-link">
-            Home
-          </Link> */}
           {token ? (
             <>
               <Link to="/account" className="nav-link">
                 Account
               </Link>
-              <button
-                onClick={handleLogout}
-                className="nav-link logout-button"
-              >
+              <button onClick={handleLogout} className="nav-link logout-button">
                 Log out
               </button>
             </>

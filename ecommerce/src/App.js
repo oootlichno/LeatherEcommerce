@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import "./App.css";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Home from "./pages/Home";
@@ -16,7 +16,33 @@ import ThankYouPage from "./pages/ThankYouPage";
 
 function App() {
   const [token, setToken] = useState(() => localStorage.getItem("token"));
-  const [cart, setCart] = useState([]); 
+  const [cart, setCart] = useState([]);
+
+  const fetchCart = useCallback(async () => {
+    if (!token) {
+      setCart([]); 
+      return;
+    }
+
+    try {
+      const response = await fetch("http://localhost:5001/cart", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const { cart: backendCart } = await response.json();
+        setCart(backendCart || []); 
+      } else {
+        console.error("Failed to fetch cart data.");
+        setCart([]);
+      }
+    } catch (error) {
+      console.error("Error fetching cart:", error.message);
+      setCart([]);
+    }
+  }, [token]); 
 
   const addToCart = (product, quantity) => {
     setCart((prevCart) => {
@@ -36,13 +62,23 @@ function App() {
     setCart((prevCart) => prevCart.filter((item) => item.id !== productId));
   };
 
-  useEffect(() => {
-    if (token) {
-      localStorage.setItem("token", token);
-    } else {
-      localStorage.removeItem("token");
+  const clearCart = async () => {
+    try {
+      await fetch("http://localhost:5001/cart", {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setCart([]); 
+    } catch (error) {
+      console.error("Error clearing cart:", error.message);
     }
-  }, [token]);
+  };
+
+  useEffect(() => {
+    fetchCart(); 
+  }, [fetchCart]); 
 
   const handleSetToken = (newToken) => {
     setToken(newToken);
@@ -60,29 +96,21 @@ function App() {
               <Home
                 token={token}
                 setToken={handleSetToken}
-                cartItems={cart} 
+                cartItems={cart}
+                setCartItems={setCart}
               />
             }
           />
-          <Route
-            path="/leather"
-            element={<LeatherPage cartItems={cart} />}
-          />
-          <Route
-            path="/handtools"
-            element={<HandToolsPage cartItems={cart} />}
-          />
-          <Route
-            path="/molds"
-            element={<MoldsPage cartItems={cart} />}
-          />
+          <Route path="/leather" element={<LeatherPage cartItems={cart} />} />
+          <Route path="/handtools" element={<HandToolsPage cartItems={cart} />} />
+          <Route path="/molds" element={<MoldsPage cartItems={cart} />} />
           <Route path="/thank-you" element={<ThankYouPage />} />
           <Route
             path="/product/:id"
             element={
               <ProductPage
                 addToCart={addToCart}
-                cartItems={cart} 
+                cartItems={cart}
               />
             }
           />
@@ -113,7 +141,12 @@ function App() {
           />
           <Route
             path="/checkout"
-            element={<CheckoutPage token={token} />}
+            element={
+              <CheckoutPage
+                token={token}
+                clearCart={clearCart} 
+              />
+            }
           />
           {/* Fallback Route */}
           <Route path="*" element={<Navigate to="/" replace />} />

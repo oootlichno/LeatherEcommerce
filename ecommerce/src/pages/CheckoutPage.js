@@ -126,7 +126,7 @@ const CheckoutForm = ({ navigate, token }) => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    console.log("handleSubmit called");
+    console.log("Cart items before submission:", cartItems);
   
     if (!stripe || !elements) return;
   
@@ -162,8 +162,7 @@ const CheckoutForm = ({ navigate, token }) => {
       }
   
       const { clientSecret, orderId } = await response.json();
-      console.log("Payment Intent created. Order ID:", orderId);
-
+  
       const paymentResult = await stripe.confirmCardPayment(clientSecret, {
         payment_method: {
           card: elements.getElement(CardElement),
@@ -185,12 +184,16 @@ const CheckoutForm = ({ navigate, token }) => {
       } else if (paymentResult.paymentIntent.status === "succeeded") {
         console.log("Payment successful, Order ID:", orderId);
   
+        // Clear the cart in the backend
         await fetch("http://localhost:5001/cart", {
           method: "DELETE",
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
+  
+        // Clear the cart in the frontend state
+        setCartItems([]); // Ensure `setCartItems` is available here
   
         setPaymentSuccess(true);
       }
