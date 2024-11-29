@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from "react";
+import React, { useEffect, useCallback, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import logo from "../style/img/logo.png";
 import CartComponent from "../components/CartComponent";
@@ -11,13 +11,15 @@ const CartPage = ({ cartItems, removeFromCart, token, setToken }) => {
     .reduce((sum, item) => sum + item.price * item.quantity, 0)
     .toFixed(2);
 
+  const [isSyncing, setIsSyncing] = useState(false); 
+
   const syncCartWithBackend = useCallback(async () => {
-    if (!token) return;
+    if (!token || isSyncing) return; 
 
     console.log("syncCartWithBackend called");
 
-
     try {
+      setIsSyncing(true); 
       for (const item of cartItems) {
         console.log("Syncing cart item:", item);
         const response = await fetch("http://localhost:5001/cart", {
@@ -35,23 +37,24 @@ const CartPage = ({ cartItems, removeFromCart, token, setToken }) => {
 
         if (!response.ok) {
           console.error(`Failed to sync item ${item.id} to the backend`);
-        }
-        else {
+        } else {
           console.log(`Item ${item.id} synced successfully`);
         }
       }
       console.log("Cart synced with backend successfully");
     } catch (error) {
       console.error("Error syncing cart with backend:", error.message);
+    } finally {
+      setIsSyncing(false); 
     }
-  }, [cartItems, token]);
+  }, [cartItems, token, isSyncing]);
 
   const handleCheckout = async () => {
     if (!token) {
       alert("Please log in to make a purchase or create an account.");
       navigate("/login");
     } else {
-      await syncCartWithBackend(); 
+      await syncCartWithBackend();
       navigate("/checkout");
     }
   };
@@ -64,9 +67,9 @@ const CartPage = ({ cartItems, removeFromCart, token, setToken }) => {
 
   useEffect(() => {
     if (token) {
-      syncCartWithBackend();
+      syncCartWithBackend(); 
     }
-  }, [/* cartItems, */ token, syncCartWithBackend]); 
+  }, [token, syncCartWithBackend]); 
 
   return (
     <div>
