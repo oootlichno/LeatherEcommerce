@@ -3,7 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { Elements, CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 
-const stripePromise = loadStripe("pk_test_51Nf3pGJ6VhgbPvzwp1dOsUkZ49wGOOTYg6A62hJuSil9Bu9yxJAPn7eiOELHliBbwJmxYkatvcpIDkAxRRQETKHL00AyU4bEqG");
+const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY);
+
 
 const CheckoutPage = ({ token }) => {
   const navigate = useNavigate();
