@@ -19,7 +19,7 @@ const ProductPage = ({ addToCart, cartItems, token, setToken }) => {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const response = await fetch(`http://localhost:5001/api/products/${id}`);
+        const response = await fetch(`http://localhost:5001/products/${id}`);
         if (!response.ok) {
           throw new Error("Failed to fetch product data");
         }

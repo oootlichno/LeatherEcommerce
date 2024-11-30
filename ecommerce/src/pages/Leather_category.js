@@ -18,7 +18,7 @@ const LeatherPage = ({ cartItems, token, setToken }) => { // ADDED cartItems, to
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch("http://localhost:5001/api/products?category=leather");
+        const response = await fetch("http://localhost:5001/products?category=leather");
         if (!response.ok) {
           throw new Error("Failed to fetch products");
         }

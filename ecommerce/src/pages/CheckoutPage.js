@@ -50,7 +50,7 @@ const CheckoutForm = ({ navigate, token }) => {
     const fetchAddress = async () => {
       try {
 
-        const response = await fetch("http://localhost:5001/account", {
+        const response = await fetch("http://localhost:5001/users/account", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -144,7 +144,7 @@ const CheckoutForm = ({ navigate, token }) => {
       );
       console.log("Total amount to charge (in cents):", totalAmount);
   
-      const response = await fetch("http://localhost:5001/create-payment-intent", {
+      const response = await fetch("http://localhost:5001/payments/create-payment-intent", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
