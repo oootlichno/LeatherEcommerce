@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import logo from "../style/img/logo.png";
-import Footer from "../components/Footer";
 import CartComponent from "../components/CartComponent"; // ADDED
 import productImage from "../style/img/leather.png";
 
@@ -83,8 +82,6 @@ const LeatherPage = ({ cartItems, token, setToken }) => { // ADDED cartItems, to
           </div>
         ))}
       </div>
-
-      <Footer />
     </div>
   );
 };

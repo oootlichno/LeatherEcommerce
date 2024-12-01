@@ -20,7 +20,7 @@ function App() {
 
   const fetchCart = useCallback(async () => {
     if (!token) {
-      setCart([]); 
+      setCart([]);
       return;
     }
 
@@ -33,7 +33,7 @@ function App() {
 
       if (response.ok) {
         const { cart: backendCart } = await response.json();
-        setCart(backendCart || []); 
+        setCart(backendCart || []);
       } else {
         console.error("Failed to fetch cart data.");
         setCart([]);
@@ -42,7 +42,7 @@ function App() {
       console.error("Error fetching cart:", error.message);
       setCart([]);
     }
-  }, [token]); 
+  }, [token]);
 
   const addToCart = (product, quantity) => {
     setCart((prevCart) => {
@@ -70,15 +70,15 @@ function App() {
           Authorization: `Bearer ${token}`,
         },
       });
-      setCart([]); 
+      setCart([]);
     } catch (error) {
       console.error("Error clearing cart:", error.message);
     }
   };
 
   useEffect(() => {
-    fetchCart(); 
-  }, [fetchCart]); 
+    fetchCart();
+  }, [fetchCart]);
 
   const handleSetToken = (newToken) => {
     setToken(newToken);
@@ -88,69 +88,69 @@ function App() {
 
   return (
     <BrowserRouter>
-      <div>
-        <Routes>
-          <Route
-            path="/"
-            element={
-              <Home
-                token={token}
-                setToken={handleSetToken}
-                cartItems={cart}
-                setCartItems={setCart}
-              />
-            }
-          />
-          <Route path="/leather" element={<LeatherPage cartItems={cart} />} />
-          <Route path="/handtools" element={<HandToolsPage cartItems={cart} />} />
-          <Route path="/molds" element={<MoldsPage cartItems={cart} />} />
-          <Route path="/thank-you" element={<ThankYouPage />} />
-          <Route
-            path="/product/:id"
-            element={
-              <ProductPage
-                addToCart={addToCart}
-                cartItems={cart}
-              />
-            }
-          />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route
-            path="/login"
-            element={<LoginPage setToken={handleSetToken} />}
-          />
-          {isAuthenticated ? (
+      <div id="app-container">
+        <div id="main-content">
+          <Routes>
             <Route
-              path="/account"
+              path="/"
               element={
-                <AccountPage token={token} setToken={handleSetToken} />
+                <Home
+                  token={token}
+                  setToken={handleSetToken}
+                  cartItems={cart}
+                  setCartItems={setCart}
+                />
               }
             />
-          ) : (
-            <Route path="/account" element={<Navigate to="/login" replace />} />
-          )}
-          <Route
-            path="/cart"
-            element={
-              <CartPage
-                cartItems={cart}
-                removeFromCart={removeFromCart}
-                token={token}
+            <Route path="/leather" element={<LeatherPage cartItems={cart} />} />
+            <Route
+              path="/handtools"
+              element={<HandToolsPage cartItems={cart} />}
+            />
+            <Route path="/molds" element={<MoldsPage cartItems={cart} />} />
+            <Route path="/thank-you" element={<ThankYouPage />} />
+            <Route
+              path="/product/:id"
+              element={<ProductPage addToCart={addToCart} cartItems={cart} />}
+            />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route
+              path="/login"
+              element={<LoginPage setToken={handleSetToken} />}
+            />
+            {isAuthenticated ? (
+              <Route
+                path="/account"
+                element={
+                  <AccountPage token={token} setToken={handleSetToken} />
+                }
               />
-            }
-          />
-          <Route
-            path="/checkout"
-            element={
-              <CheckoutPage
-                token={token}
-                clearCart={clearCart} 
+            ) : (
+              <Route
+                path="/account"
+                element={<Navigate to="/login" replace />}
               />
-            }
-          />
-          {/* Fallback Route */}
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+            )}
+            <Route
+              path="/cart"
+              element={
+                <CartPage
+                  cartItems={cart}
+                  removeFromCart={removeFromCart}
+                  token={token}
+                />
+              }
+            />
+            <Route
+              path="/checkout"
+              element={
+                <CheckoutPage token={token} clearCart={clearCart} />
+              }
+            />
+            {/* Fallback Route */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </div>
         <Footer />
       </div>
     </BrowserRouter>
