@@ -1,3 +1,4 @@
+import '@testing-library/jest-dom';
 const { db, resetDatabase } = require('./dbSetup');
 const request = require('supertest');
 const app = require('../src/App'); // Replace with your app's entry point

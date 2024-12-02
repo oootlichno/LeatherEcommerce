@@ -1,3 +1,4 @@
+import '@testing-library/jest-dom';
 const request = require('supertest');
 const app = require('../server'); // Adjust the path to your server.js
 
