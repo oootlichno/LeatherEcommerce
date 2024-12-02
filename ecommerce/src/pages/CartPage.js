@@ -1,7 +1,5 @@
 import React, { useEffect, useCallback, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import logo from "../style/img/logo.png";
-import CartComponent from "../components/CartComponent";
 import productImage from "../style/img/leather.png";
 
 const CartPage = ({ cartItems, removeFromCart, token, setToken }) => {
@@ -59,12 +57,6 @@ const CartPage = ({ cartItems, removeFromCart, token, setToken }) => {
     }
   };
 
-  const handleLogout = () => {
-    setToken(null);
-    localStorage.removeItem("token");
-    navigate("/");
-  };
-
   useEffect(() => {
     if (token && !syncRef.current) {
       syncRef.current = true;
@@ -78,35 +70,6 @@ const CartPage = ({ cartItems, removeFromCart, token, setToken }) => {
 
   return (
     <div>
-      {/* Header Section */}
-      <div className="header">
-        <div className="cart-container">
-          <CartComponent cartItems={cartItems} />
-        </div>
-        <div className="logo">
-          <Link to="/">
-            <img src={logo} alt="logo" />
-          </Link>
-        </div>
-        <div className="nav">
-          <Link to="/" className="nav-link">Home</Link>
-          {token ? (
-            <>
-              <Link to="/account" className="nav-link">Account</Link>
-              <button
-                onClick={handleLogout}
-                className="nav-link logout-button"
-              >
-                Log out
-              </button>
-            </>
-          ) : (
-            <Link to="/login" className="nav-link">Log in</Link>
-          )}
-        </div>
-      </div>
-      {/* End of Header Section */}
-
       <div className="cart-page">
         <h1>Shopping Cart</h1>
         {cartItems.length === 0 ? (

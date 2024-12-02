@@ -193,8 +193,7 @@ const CheckoutForm = ({ navigate, token }) => {
           },
         });
   
-        // Clear the cart in the frontend state
-        setCartItems([]); // Ensure `setCartItems` is available here
+        setCartItems([]); 
   
         setPaymentSuccess(true);
       }

@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Link, useNavigate } from "react-router-dom";
-import logo from "../style/img/logo.png";
+import { Link } from "react-router-dom";
+
 
 const AccountPage = ({ token, setToken }) => {
   const [user, setUser] = useState(null);
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -31,30 +30,11 @@ const AccountPage = ({ token, setToken }) => {
     }
   }, [token]);
 
-  const handleLogout = () => {
-    setToken(null);
-    navigate("/");
-  };
-
   if (loading) return <div className="loading">Loading...</div>;
 
   if (!user) {
     return (
       <>
-        {/* Header Section */}
-        <div className="header">
-          <div className="logo">
-            <Link to="/">
-              <img src={logo} alt="logo" />
-            </Link>
-          </div>
-          <div className="nav">
-            <Link to="/" className="nav-link">
-              Home
-            </Link>
-          </div>
-        </div>
-        {/* End of Header Section */}
         <div className="access-denied">
           <h2>Access Denied</h2>
           <p>Please log in to access your account.</p>
@@ -65,24 +45,6 @@ const AccountPage = ({ token, setToken }) => {
 
   return (
     <>
-      {/* Header Section */}
-      <div className="header">
-        <div className="logo">
-          <Link to="/">
-            <img src={logo} alt="logo" />
-          </Link>
-        </div>
-        <div className="nav">
-          <Link to="/" className="nav-link">
-            Home
-          </Link>
-          <button onClick={handleLogout} className="nav-link">
-            Log Out
-          </button>
-        </div>
-      </div>
-      {/* End of Header Section */}
-
       <div className="account-container">
         <div className="account-box">
           <h1 className="account-title">Account Details</h1>

@@ -13,6 +13,7 @@ import AccountPage from "./pages/AccountPage";
 import CartPage from "./pages/CartPage";
 import CheckoutPage from "./pages/CheckoutPage";
 import ThankYouPage from "./pages/ThankYouPage";
+import Header from "./components/Header";
 
 function App() {
   const [token, setToken] = useState(() => localStorage.getItem("token"));
@@ -90,6 +91,12 @@ function App() {
     <BrowserRouter>
       <div id="app-container">
         <div id="main-content">
+          <Header
+            token={token}
+            setToken={handleSetToken}
+            cartItems={cart}
+            setCartItems={setCart}
+          />
           <Routes>
             <Route
               path="/"
@@ -143,9 +150,7 @@ function App() {
             />
             <Route
               path="/checkout"
-              element={
-                <CheckoutPage token={token} clearCart={clearCart} />
-              }
+              element={<CheckoutPage token={token} clearCart={clearCart} />}
             />
             {/* Fallback Route */}
             <Route path="*" element={<Navigate to="/" replace />} />

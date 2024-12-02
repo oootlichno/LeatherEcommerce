@@ -1,18 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import logo from "../style/img/logo.png";
-import CartComponent from "../components/CartComponent"; // ADDED
 import productImage from "../style/img/leather.png";
 
-const LeatherPage = ({ cartItems, token, setToken }) => { // ADDED cartItems, token, setToken
+const LeatherPage = ({ cartItems, token, setToken }) => { 
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const handleLogout = () => {
-    setToken(null);
-    localStorage.removeItem("token");
-  };
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -38,35 +32,6 @@ const LeatherPage = ({ cartItems, token, setToken }) => { // ADDED cartItems, to
 
   return (
     <div>
-      {/* Header Section */}
-      <div className="header">
-        <div className="cart-container">
-          <CartComponent cartItems={cartItems} /> {/* ADDED */}
-        </div>
-        <div className="logo">
-          <Link to="/">
-            <img src={logo} alt="logo" />
-          </Link>
-        </div>
-        <div className="nav">
-          <Link to="/" className="nav-link">Home</Link>
-          {token ? (
-            <>
-              <Link to="/account" className="nav-link">Account</Link>
-              <button
-                onClick={handleLogout}
-                className="nav-link logout-button"
-              >
-                Log out
-              </button>
-            </>
-          ) : (
-            <Link to="/login" className="nav-link">Log in</Link>
-          )}
-        </div>
-      </div>
-      {/* End of Header Section */}
-
       <div>
         <h2>SHOP BY PRODUCT</h2>
       </div>
