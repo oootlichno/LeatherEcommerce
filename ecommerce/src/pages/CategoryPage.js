@@ -1,41 +1,39 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import productImage from "../style/img/leather.png";
 
-const LeatherPage = ({ cartItems, token, setToken }) => { 
+const CategoryPage = ({ cartItems, token, setToken }) => {
+  const { categoryId } = useParams(); 
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch("http://localhost:5001/products?category=leather");
+        const response = await fetch(
+          `http://localhost:5001/products?categoryId=${categoryId}`
+        );
         if (!response.ok) {
           throw new Error("Failed to fetch products");
         }
         const data = await response.json();
-        setProducts(data);
+        setProducts(data); 
       } catch (err) {
-        setError(err.message);
+        setError(err.message); 
       } finally {
-        setLoading(false);
+        setLoading(false); 
       }
     };
 
     fetchProducts();
-  }, []);
+  }, [categoryId]); 
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
+  if (loading) return <div>Loading...</div>; 
+  if (error) return <div>Error: {error}</div>; 
 
   return (
     <div>
-      <div>
-        <h2>SHOP BY PRODUCT</h2>
-      </div>
-
       <div className="products">
         {products.map((product) => (
           <div className="product" key={product.id}>
@@ -51,4 +49,4 @@ const LeatherPage = ({ cartItems, token, setToken }) => {
   );
 };
 
-export default LeatherPage;
+export default CategoryPage;

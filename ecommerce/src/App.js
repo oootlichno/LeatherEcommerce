@@ -3,9 +3,7 @@ import "./App.css";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Home from "./pages/Home";
 import Footer from "./components/Footer";
-import LeatherPage from "./pages/Leather_category";
-import HandToolsPage from "./pages/Handtools_category";
-import MoldsPage from "./pages/Mold_category";
+import CategoryPage from "./pages/CategoryPage";
 import ProductPage from "./pages/ProductPage";
 import RegisterPage from "./pages/RegisterPage";
 import LoginPage from "./pages/LoginPage";
@@ -109,17 +107,19 @@ function App() {
                 />
               }
             />
-            <Route path="/leather" element={<LeatherPage cartItems={cart} />} />
-            <Route
-              path="/handtools"
-              element={<HandToolsPage cartItems={cart} />}
-            />
-            <Route path="/molds" element={<MoldsPage cartItems={cart} />} />
-            <Route path="/thank-you" element={<ThankYouPage />} />
+            <Route path="/category/:categoryId" element={<CategoryPage />} />
             <Route
               path="/product/:id"
-              element={<ProductPage addToCart={addToCart} cartItems={cart} />}
+              element={
+                <ProductPage
+                  addToCart={addToCart}
+                  cartItems={cart}
+                  token={token}
+                  setToken={setToken}
+                />
+              }
             />
+            <Route path="/thank-you" element={<ThankYouPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route
               path="/login"
@@ -152,7 +152,6 @@ function App() {
               path="/checkout"
               element={<CheckoutPage token={token} clearCart={clearCart} />}
             />
-            {/* Fallback Route */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </div>
