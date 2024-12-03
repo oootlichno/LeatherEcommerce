@@ -1,9 +1,6 @@
-import '@testing-library/jest-dom';
 const request = require('supertest');
-const app = require('../server'); // Adjust the path to your server.js
-
+const app = require('../../server'); 
 describe('API Tests', () => {
-  // Test: Fetch all categories
   test('GET /api/categories - Fetch all categories', async () => {
     const res = await request(app).get('/api/categories');
     expect(res.status).toBe(200);

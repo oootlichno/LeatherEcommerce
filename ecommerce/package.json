@@ -27,7 +27,7 @@
     "server": "node server.js",
     "dev": "npm run server",
     "build": "react-scripts build",
-    "test": "NODE_ENV=testing jest",
+    "test": "NODE_ENV=testing jest --watchAll",
     "eject": "react-scripts eject",
     "migrate": "knex migrate:latest",
     "rollback": "knex migrate:rollback",
@@ -53,11 +53,27 @@
     ]
   },
   "devDependencies": {
+    "@babel/core": "^7.26.0",
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "@babel/preset-env": "^7.26.0",
+    "@babel/preset-react": "^7.25.9",
+    "babel-jest": "^29.7.0",
+    "identity-obj-proxy": "^3.0.0",
     "concurrently": "^9.1.0",
     "jest": "^27.5.1",
     "knex": "^3.1.0",
     "sqlite3": "^5.1.7",
     "supertest": "^7.0.0"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.(js|jsx|mjs|ts|tsx)$": "babel-jest"
+    },
+    "moduleFileExtensions": ["js", "jsx"],
+    "testEnvironment": "jsdom",
+    "moduleNameMapper": {
+      "\\.(css|less|scss|sass)$": "identity-obj-proxy",
+      "\\.(jpg|jpeg|png|gif|webp|svg)$": "<rootDir>/__mocks__/fileMock.js"
+    }
   }
 }

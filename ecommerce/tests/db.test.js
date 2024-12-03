@@ -1,72 +1,100 @@
-import '@testing-library/jest-dom';
-const { db, resetDatabase } = require('./dbSetup');
-const request = require('supertest');
-const app = require('../src/App'); 
-
-
+const knex = require('../tests/dbSetup_test');
+const { resetDatabase } = require('../tests/helpers');
 
 beforeAll(async () => {
   await resetDatabase();
 });
 
 afterAll(async () => {
-  await db.destroy();
+  await knex.destroy();
 });
 
 describe('Database Tests', () => {
-    test('Users table: Should fetch all users', async () => {
-        const users = await db('users');
-        expect(users).toHaveLength(3); 
-        expect(users[0]).toHaveProperty('username', 'john_doe'); 
-      });
+  describe('Users Table', () => {
+    test('Should fetch all users and validate their structure', async () => {
+      const users = await knex('users');
+      expect(users).toHaveLength(3);
+      expect(users[0]).toHaveProperty('username');
+      expect(users[0]).toHaveProperty('email');
+      expect(users[0]).toHaveProperty('password');
+    });
 
-  test('Addresses table: Should fetch addresses linked to users', async () => {
-    const addresses = await db('addresses').where({ user_id: 1 });
-    expect(addresses).toHaveLength(1);
-    expect(addresses[0]).toHaveProperty('city', 'Katy');
+    test('Should fetch a user by ID', async () => {
+      const user = await knex('users').where({ id: 1 }).first();
+      expect(user).toBeDefined();
+      expect(user).toHaveProperty('username', 'john_doe');
+      expect(user).toHaveProperty('email', 'john@example.com');
+      expect(user).toHaveProperty('name', 'John Doe');
+    });
   });
 
-  test('Categories table: Should fetch all categories', async () => {
-    const categories = await db('categories');
-    expect(categories).toHaveLength(3);
-    expect(categories[0]).toHaveProperty('name', 'Leather');
+  describe('Orders Table', () => {
+    test('Should fetch all orders for a specific user', async () => {
+      const orders = await knex('orders').where({ user_id: 1 });
+      expect(orders).toHaveLength(2);
+      expect(orders[0]).toHaveProperty('status');
+      expect(orders[0]).toHaveProperty('total_price');
+    });
+
+    test('Should validate foreign key relationships in orders table', async () => {
+      const orders = await knex('orders').where({ user_id: 2 });
+      expect(orders).toHaveLength(1);
+      const user = await knex('users').where({ id: orders[0].user_id }).first();
+      expect(user).toBeDefined();
+      expect(user).toHaveProperty('username', 'jane_doe');
+    });
   });
 
-  test('Products table: Should fetch products linked to a category', async () => {
-    const products = await db('products').where({ category_id: 1 });
-    expect(products).toHaveLength(2);
-    expect(products[0]).toHaveProperty('name', 'Cowhide Leather');
-  });
+  describe('Order Items Table', () => {
+    test('Should fetch all items for a specific order', async () => {
+      const orderItems = await knex('order_items').where({ order_id: 1 });
+      expect(orderItems).toHaveLength(2);
+      expect(orderItems[0]).toHaveProperty('product_id');
+      expect(orderItems[0]).toHaveProperty('quantity');
+    });
 
-  test('Orders table: Should fetch orders for a specific user', async () => {
-    const orders = await db('orders').where({ user_id: 1 });
-    expect(orders).toHaveLength(1);
-    expect(orders[0]).toHaveProperty('status', 'Processing');
-  });
+    test('Should validate foreign key relationships in order_items table', async () => {
+      const orderItems = await knex('order_items').where({ order_id: 1 });
+      const product = await knex('products').where({ id: orderItems[0].product_id }).first();
+      expect(product).toBeDefined();
+      expect(product).toHaveProperty('name');
+    });
 
-  test('Order Items table: Should fetch items for an order', async () => {
-    const orderItems = await db('order_items').where({ order_id: 1 });
-    expect(orderItems).toHaveLength(2);
-    expect(orderItems[0]).toHaveProperty('product_id', 1);
-  });
-});
-
-describe('POST /create-payment-intent', () => {
-  it('creates a payment intent and order', async () => {
-    const res = await request(app)
-      .post('/create-payment-intent')
-      .set('Authorization', `Bearer valid_token`) // Replace with valid token logic
-      .send({
-        amount: 5000,
-        shippingAddressId: 1,
-        products: [
-          { productId: 1, price: 1000, quantity: 2 },
-          { productId: 2, price: 3000, quantity: 1 }
-        ]
-      });
+    test('Should validate order total price matches the sum of order items', async () => {
+      const order = await knex('orders').where({ id: 1 }).first();
+      const orderItems = await knex('order_items').where({ order_id: 1 });
     
-    expect(res.statusCode).toBe(200);
-    expect(res.body).toHaveProperty('clientSecret');
-    expect(res.body).toHaveProperty('orderId');
+      const calculatedTotal = orderItems.reduce(
+        (sum, item) => sum + item.price * item.quantity,
+        0
+      );
+    
+      const roundedTotal = Math.round(calculatedTotal * 100) / 100;
+    
+      expect(order.total_price).toBeCloseTo(roundedTotal, 1);
+    });
+  });
+
+  describe('Data Integrity Tests', () => {
+    test('Should prevent duplicate users by username or email', async () => {
+      await expect(
+        knex('users').insert({
+          username: 'john_doe',
+          email: 'john@example.com',
+          password: 'hashed_password',
+        })
+      ).rejects.toThrow();
+    });
+
+    test('Should enforce non-null constraints on required fields', async () => {
+      await expect(
+        knex('orders').insert({
+          user_id: null,
+          total_price: 100.0,
+          status: 'pending',
+        })
+      ).rejects.toThrow();
+    });
   });
 });
+
