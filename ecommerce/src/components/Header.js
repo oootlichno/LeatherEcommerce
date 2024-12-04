@@ -52,12 +52,10 @@ const Header = ({ token, setToken, cartItems, setCartItems }) => {
  <div className="search-bar-container">
   <SearchBar />
 </div>
- <div className="cart-container">
-   <CartComponent cartItems={cartItems} /> 
- </div>
+
  
  <div className="nav">
-   <Link to="/" className="nav-link">Home</Link>
+  {/*  <Link to="/" className="nav-link">Home</Link> */}
    {token ? (
      <>
        <Link to="/account" className="nav-link">Account</Link>
@@ -71,6 +69,9 @@ const Header = ({ token, setToken, cartItems, setCartItems }) => {
    ) : (
      <Link to="/login" className="nav-link">Log in</Link>
    )}
+ </div>
+ <div className="cart-container">
+   <CartComponent cartItems={cartItems} /> 
  </div>
 </div>
 

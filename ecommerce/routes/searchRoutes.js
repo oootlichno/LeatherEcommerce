@@ -14,7 +14,6 @@ router.get("/", async (req, res) => {
         .where("name", "like", `%${query}%`)
         .select("id", "name", "price", "description");
   
-      // Return empty arrays if no matches
       if (products.length === 0) {
         return res.status(200).json({ suggestions: [], products: [] });
       }
