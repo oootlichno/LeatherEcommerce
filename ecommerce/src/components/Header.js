@@ -2,6 +2,8 @@ import React, { useEffect } from "react";
 import CartComponent from "./CartComponent";
 import logo from "../style/img/logo.png";
 import { Link } from "react-router-dom";
+import SearchBar from "../components/SearchBar";
+
 
 
 const Header = ({ token, setToken, cartItems, setCartItems }) => {
@@ -42,14 +44,18 @@ const Header = ({ token, setToken, cartItems, setCartItems }) => {
     
     return (
 <div className="header">
- <div className="cart-container">
-   <CartComponent cartItems={cartItems} /> 
- </div>
- <div className="logo">
+<div className="logo">
    <Link to="/">
      <img src={logo} alt="logo" />
    </Link>
  </div>
+ <div className="search-bar-container">
+  <SearchBar />
+</div>
+ <div className="cart-container">
+   <CartComponent cartItems={cartItems} /> 
+ </div>
+ 
  <div className="nav">
    <Link to="/" className="nav-link">Home</Link>
    {token ? (

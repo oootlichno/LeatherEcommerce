@@ -7,6 +7,7 @@ dotenv.config();
 const cartRoutes = require("./routes/cartRoutes");
 const userRoutes = require("./routes/userRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
+const searchRoutes = require("./routes/searchRoutes");
 const productRoutes = require("./routes/productRoutes");
 const { router: authRoutes } = require("./routes/authRoutes");
 
@@ -18,6 +19,7 @@ app.use("/webhook", bodyParser.raw({ type: "application/json" }));
 app.use("/cart", cartRoutes);
 app.use("/users", userRoutes);
 app.use("/payments", paymentRoutes);
+app.use("/products/search", searchRoutes);
 app.use("/products", productRoutes);
 app.use("/", authRoutes);
 

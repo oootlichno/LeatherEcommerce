@@ -730,6 +730,75 @@ h3 {
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
 }
 
+.custom-search-bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+  background-color: rgba(255, 255, 255, 0.9);
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.icon-container {
+  position: absolute;
+  left: 10px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.search-icon {
+  width: 24px;
+  height: 24px;
+  opacity: 0.6;
+}
+
+.search-input {
+  width: 100%;
+  padding: 10px 10px 10px 40px;
+  font-size: 18px;
+  border: none;
+  outline: none;
+}
+
+.search-results {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background: #fff;
+  border: 1px solid #ddd;
+  z-index: 1000;
+  max-height: 300px;
+  overflow-y: auto;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+}
+
+.suggestions ul,
+.products ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.suggestion-item,
+.product-item {
+  padding: 10px;
+  border-bottom: 1px solid #f0f0f0;
+  cursor: pointer;
+}
+
+.suggestion-item:hover,
+.product-item:hover {
+  background-color: #f9f9f9;
+}
+
 /* Buttons */
 button {
   font-family:"Poppins", sans-serif;
