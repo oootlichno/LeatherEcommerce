@@ -741,7 +741,7 @@ h3 {
 
 .custom-search-bar {
   position: relative;
-  width: 250%;
+  width: 800px;
 }
 
 .icon-container {
@@ -777,10 +777,14 @@ h3 {
   z-index: 1000;
   max-height: 300px;
   overflow-y: auto;
+  display: flex; /* Align content inside the dropdown */
+  padding: 10px;
 }
 
 .suggestions, .products {
-  padding: 10px;
+  flex: 1;
+  display:flex;
+  flex-direction: column;
 }
 
 .suggestions ul, .products ul {
@@ -790,7 +794,7 @@ h3 {
 }
 
 .suggestions li, .products li {
-  padding: 5px 10px;
+  padding: 5px 0px;
   cursor: pointer;
 }
 
@@ -798,11 +802,18 @@ h3 {
   background-color: #f5f5f5;
 }
 
+.products-searchbar {
+  flex: 1; /* Take 50% of the space */
+  padding-left: 10px;
+  border-left: 1px solid #ddd; /* Add a subtle separator */
+}
+
 .product-item {
   display: flex;
   align-items: center;
   gap: 10px;
   cursor: pointer;
+  margin: 5px;
 }
 
 .product-thumbnail {

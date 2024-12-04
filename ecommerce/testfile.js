@@ -1,39 +1,30 @@
-.custom-search-bar {
-    position: relative;
-    width: 600px; /* Set a fixed width or use percentage-based width */
-  }
-  
-  .search-input {
-    width: 100%;
-    padding: 10px 40px; /* Adjust padding to fit the icon */
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 16px;
-  }
-  
-  .search-dropdown {
+.search-dropdown {
     position: absolute;
-    top: 100%; /* Position dropdown below the input */
+    top: 100%;
     left: 0;
-    width: 100%; /* Match the width of the search bar */
+    width: 100%; /* Matches the width of the search bar */
     background: rgba(255, 255, 255, 0.95);
     border: 1px solid #ddd;
     border-radius: 4px;
-    display: flex; /* Align content inside the dropdown */
+    display: flex; /* Use flexbox for side-by-side layout */
     padding: 10px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     z-index: 1000;
   }
   
-  .suggestions {
-    flex: 1; /* Take 50% of the space */
-    padding-right: 10px;
+  .suggestions, .products {
+    flex: 1; /* Each column takes equal space */
+    display: flex;
+    flex-direction: column; /* Stack content vertically */
+    padding: 0 10px;
   }
   
   .products {
-    flex: 1; /* Take 50% of the space */
-    padding-left: 10px;
-    border-left: 1px solid #ddd; /* Add a subtle separator */
+    border-left: 1px solid #ddd; /* Subtle separator between columns */
+  }
+  
+  .suggestions strong, .products strong {
+    margin-bottom: 10px; /* Add spacing below the title */
   }
   
   .suggestions ul, .products ul {
@@ -48,7 +39,7 @@
   }
   
   .products img {
-    width: 40px; /* Small product thumbnail */
+    width: 40px; /* Thumbnail size */
     height: 40px;
     object-fit: cover;
     margin-right: 10px;

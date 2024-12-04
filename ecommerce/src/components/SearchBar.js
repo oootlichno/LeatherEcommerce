@@ -76,7 +76,7 @@ const SearchBar = () => {
           )}
 
           {products.length > 0 && (
-            <div className="products">
+            <div className="products-searchbar">
               <strong>Products</strong>
               <ul>
                 {products.map((product) => (
