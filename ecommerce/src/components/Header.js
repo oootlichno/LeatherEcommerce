@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import CartComponent from "./CartComponent";
 import logo from "../style/img/logo.png";
+import account_icon from "../style/img/account-icon.png";
 import { Link } from "react-router-dom";
 import SearchBar from "../components/SearchBar";
 
@@ -54,22 +55,32 @@ const Header = ({ token, setToken, cartItems, setCartItems }) => {
 </div>
 
  
- <div className="nav">
-  {/*  <Link to="/" className="nav-link">Home</Link> */}
-   {token ? (
-     <>
-       <Link to="/account" className="nav-link">Account</Link>
-       <button
-         onClick={handleLogout}
-         className="nav-link logout-button"
-       >
-         Log out
-       </button>
-     </>
-   ) : (
-     <Link to="/login" className="nav-link">Log in</Link>
-   )}
- </div>
+<div className="nav">
+{/*   <Link to="/" className="nav-link">Home</Link>
+ */}  {token ? (
+    <>
+       <Link to="/account" className="nav-link">
+        <img
+          src={account_icon}
+          alt="Account"
+          className="account-icon"
+        />
+      </Link>
+      <Link 
+        to="/" 
+        className="nav-link"
+        onClick={(e) => {
+          e.preventDefault(); // Prevent navigation
+          handleLogout();
+        }}
+      >
+        Log out
+      </Link>
+    </>
+  ) : (
+    <Link to="/login" className="nav-link">Log in</Link>
+  )}
+</div>
  <div className="cart-container">
    <CartComponent cartItems={cartItems} /> 
  </div>
