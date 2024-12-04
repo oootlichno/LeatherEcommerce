@@ -4,51 +4,44 @@ import debounce from "lodash.debounce";
 import lookingGlass from "../style/img/looking_glass.png";
 
 const SearchBar = () => {
-  const [query, setQuery] = useState(""); 
-  const [suggestions, setSuggestions] = useState([]); 
+  const [query, setQuery] = useState("");
+  const [suggestions, setSuggestions] = useState([]);
   const [products, setProducts] = useState([]);
 
   const debouncedSearch = debounce(async (value) => {
-    console.log("API Request Triggered with query:", value);
     try {
-      const res = await axios.get("http://localhost:5001/products/search", {
+      const res = await axios.get(`http://localhost:5001/products/search`, {
         params: { query: value },
       });
-
-      console.log("API Response:", res.data); 
-
-      setSuggestions(res.data.suggestions || []);
-      setProducts(res.data.products || []);
+      setSuggestions(res.data.suggestions);
+      setProducts(res.data.products);
     } catch (error) {
-      console.error("Error fetching search results:", error.message);
+      console.error("Error fetching search results:", error);
     }
   }, 300);
 
   const handleInputChange = (e) => {
     const value = e.target.value;
     setQuery(value);
-    console.log("Current Query:", value); 
 
     if (value.trim()) {
-      debouncedSearch(value); 
+      debouncedSearch(value);
     } else {
       setSuggestions([]);
       setProducts([]);
     }
   };
 
-  
   const handleBlur = () => {
     setTimeout(() => {
       setSuggestions([]);
       setProducts([]);
-    }, 200);
+    }, 200); 
   };
 
-  const handleSuggestionClick = (suggestion) => {
-    setQuery(suggestion);
+  const handleSuggestionClick = (suggestions) => {
+    setQuery(suggestions);
     setSuggestions([]);
-    setProducts([]);
   };
 
   return (
@@ -65,34 +58,32 @@ const SearchBar = () => {
         className="search-input"
       />
 
-      {/* Suggestions and Products */}
       {query && (
-        <div className="search-dropdown">
-          {/* Suggestions */}
+        <div className="search-results">
           {suggestions.length > 0 && (
             <div className="suggestions">
               <strong>Suggestions</strong>
               <ul>
-                {suggestions.map((suggestion, index) => (
+                {suggestions.map((suggestions, index) => (
                   <li
                     key={index}
-                    onClick={() => handleSuggestionClick(suggestion)}
+                    onClick={() => handleSuggestionClick(suggestions)}
+                    className="suggestion-item"
                   >
-                    {suggestion}
+                    {suggestions}
                   </li>
                 ))}
               </ul>
             </div>
           )}
 
-          {/* Products */}
           {products.length > 0 && (
             <div className="products">
               <strong>Products</strong>
               <ul>
-                {products.map((product) => (
-                  <li key={product.id}>
-                    <strong>{product.name}</strong> - ${product.price.toFixed(2)}
+                {products.map((products) => (
+                  <li key={products.id} className="product-item">
+                    <strong>{products.name}</strong> - ${products.price.toFixed(2)}
                   </li>
                 ))}
               </ul>
