@@ -2,7 +2,6 @@
 * {
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
 }
 
 #app-container {
@@ -29,10 +28,12 @@ a {
 }
 
 a:hover {
-  color: #000000;;
+  color: #000000;
+  ;
 }
 
-ul, ol {
+ul,
+ol {
   list-style: none;
 }
 
@@ -43,7 +44,8 @@ img {
 
 
 
-input, textarea {
+input,
+textarea {
   font-family: inherit;
   font-size: inherit;
   border: 1px solid #ddd;
@@ -66,21 +68,26 @@ body {
 }
 
 /* Typography */
-h1, h2, h3 {
+h1,
+h2,
+h3 {
   font-family: "Bebas Neue", sans-serif;
-  color: #000000;;
+  color: #000000;
+  ;
 }
 
 h1 {
   font-size: 28px;
-  color: #000000;;
+  color: #000000;
+  ;
 }
 
 h2 {
   font-size: 24px;
   text-align: center;
   margin-top: 10px;
-  color: #000000;;
+  color: #000000;
+  ;
 }
 
 h3 {
@@ -92,24 +99,23 @@ h3 {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 20px; 
   max-width: 100%;
   background-color: #fff;
   border-bottom: 2px solid #000;
 }
 
 .logo {
-  flex:1;
+  flex: 1;
   display: flex;
-  align-items: center; 
-  margin: 0; 
+  align-items: center;
+  margin: 0;
 }
 
 .logo img {
   max-width: 150px;
   height: auto;
-  margin: 0; 
-  padding: 0; 
+  margin: 0;
+  padding: 0;
 }
 
 .nav {
@@ -117,24 +123,22 @@ h3 {
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  gap: 15px;
 }
 
 .nav-link {
   color: #000;
-/*   background-color: #000;
- */  padding: 10px 15px; 
-border-radius: 5px;
- border: 1px solid #fff;
- transition: all 0.3s ease;
+  /* padding: 10px 15px; */
+  border-radius: 5px;
+  border: 1px solid #fff;
+  transition: all 0.3s ease;
 
 }
 
 .nav-link:hover {
   color: #000;
   background-color: #fff;
-  border: 1px solid #000;
-  border-radius: 5px;
+  font-size: 18px;
+ 
 }
 
 /* Cart Container */
@@ -143,12 +147,13 @@ border-radius: 5px;
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: bold;
+  margin: 10px;
 }
 
 .cart-icon {
-  width: 40px;
+  width: 20px;
   height: auto;
   margin-right: 8px;
   margin-left: 8px;
@@ -315,7 +320,8 @@ border-radius: 5px;
 }
 
 /* Authorization */
-.login-container, .register-container {
+.login-container,
+.register-container {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -323,7 +329,8 @@ border-radius: 5px;
   background-color: #f4f4f9;
 }
 
-.login-form, .register-box {
+.login-form,
+.register-box {
   background: #fff;
   padding: 30px 40px;
   border: 2px solid #000;
@@ -334,7 +341,8 @@ border-radius: 5px;
   text-align: center;
 }
 
-.login-form h2, .register-title {
+.login-form h2,
+.register-title {
   margin-bottom: 20px;
   color: #333;
 }
@@ -366,7 +374,8 @@ border-radius: 5px;
   box-shadow: 0 0 4px rgba(0, 123, 255, 0.5);
 }
 
-.login-button, .register-button {
+.login-button,
+.register-button {
   background-color: #000;
   color: #fff;
   padding: 10px 15px;
@@ -378,7 +387,8 @@ border-radius: 5px;
   transition: background-color 0.3s ease;
 }
 
-.login-button:hover, .register-button:hover {
+.login-button:hover,
+.register-button:hover {
   background-color: #555;
 }
 
@@ -556,7 +566,8 @@ border-radius: 5px;
   display: flex;
   gap: 30px;
   align-items: flex-start;
-  flex-wrap: wrap; /* Responsive */
+  flex-wrap: wrap;
+  /* Responsive */
 }
 
 .image-gallery {
@@ -761,7 +772,8 @@ border-radius: 5px;
 
 .search-input {
   width: 100%;
-  padding: 10px 40px; /* Add space for the icon */
+  padding: 10px 40px;
+  /* Add space for the icon */
   font-size: 16px;
   border: 1px solid #ccc;
   border-radius: 4px;
@@ -772,41 +784,49 @@ border-radius: 5px;
   top: 100%;
   left: 0;
   width: 100%;
-  background-color: rgba(255, 255, 255, 0.95); /* Transparent white background */
+  background-color: rgba(255, 255, 255, 0.95);
+  /* Transparent white background */
   border: 1px solid #ddd;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
   z-index: 1000;
   max-height: 300px;
   overflow-y: auto;
-  display: flex; /* Align content inside the dropdown */
+  display: flex;
+  /* Align content inside the dropdown */
   padding: 10px;
 }
 
-.suggestions, .products {
+.suggestions,
+.products-searchbar {
   flex: 1;
-  display:flex;
+  display: flex;
   flex-direction: column;
 }
 
-.suggestions ul, .products ul {
+.suggestions ul,
+.products-searchbar ul {
   list-style: none;
   margin: 0;
   padding: 0;
 }
 
-.suggestions li, .products li {
+.suggestions li,
+.products-searchbar li {
   padding: 5px 0px;
   cursor: pointer;
 }
 
-.suggestions li:hover, .products li:hover {
+.suggestions li:hover,
+.products li:hover {
   background-color: #f5f5f5;
 }
 
 .products-searchbar {
-  flex: 1; /* Take 50% of the space */
+  flex: 1;
+  /* Take 50% of the space */
   padding-left: 10px;
-  border-left: 1px solid #ddd; /* Add a subtle separator */
+  border-left: 1px solid #ddd;
+  /* Add a subtle separator */
 }
 
 .product-item {
@@ -830,25 +850,27 @@ border-radius: 5px;
 }
 
 .search-bar-container {
-  flex: 3; 
+  flex: 3;
   display: flex;
   justify-content: center;
 }
 
 .search-bar-container input {
-  width: 200%; 
-  max-width: 800px; /* Optional: Limit the max width */
+  width: 200%;
+  max-width: 800px;
+  /* Optional: Limit the max width */
 }
 
 .search-bar-container {
-  margin-left: 20px; /* Adds spacing between logo and search bar */
+  margin-left: 20px;
+  /* Adds spacing between logo and search bar */
 }
 
 
 
 /* Buttons */
 button {
-  font-family:"Poppins", sans-serif;
+  font-family: "Poppins", sans-serif;
   font-size: 18px;
   padding: 10px 20px;
   border: 2px solid #000;
