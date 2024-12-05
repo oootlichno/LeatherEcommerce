@@ -1,14 +1,15 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import debounce from "lodash.debounce";
 import lookingGlass from "../style/img/looking_glass.png";
 import productImage from "../style/img/leather.png";
-
 
 const SearchBar = () => {
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const [products, setProducts] = useState([]);
+  const navigate = useNavigate();
 
   const debouncedSearch = debounce(async (value) => {
     try {
@@ -40,8 +41,18 @@ const SearchBar = () => {
     setProducts([]);
   };
 
+  const handleBlur = () => {
+    setTimeout(() => {
+      setSuggestions([]);
+      setProducts([]);
+    }, 200);
+  };
+
   const handleProductClick = (productId) => {
-    window.location.href = `/products/${productId}`;
+    navigate(`/product/${productId}`);
+    setQuery(""); 
+  setSuggestions([]); 
+  setProducts([]); 
   };
 
   return (
@@ -53,6 +64,7 @@ const SearchBar = () => {
         type="text"
         value={query}
         onChange={handleInputChange}
+        onBlur={handleBlur}
         placeholder="Search for products..."
         className="search-input"
       />
@@ -91,9 +103,8 @@ const SearchBar = () => {
                       className="product-thumbnail"
                     />
                     <div className="product-info">
-                      <strong>{product.name}</strong> - ${product.price.toFixed(
-                        2
-                      )}
+                      <strong>{product.name}</strong> - $
+                      {product.price.toFixed(2)}
                     </div>
                   </li>
                 ))}
