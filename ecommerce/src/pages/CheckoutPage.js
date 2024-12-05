@@ -1,10 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Elements, CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
+import {
+  Elements,
+  CardElement,
+  useStripe,
+  useElements,
+} from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
+import USStatesDropdown from "../components/USAstates";
 
 const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY);
 
+const TAX_RATE_TEXAS = 0.082;
 
 const CheckoutPage = ({ token }) => {
   const navigate = useNavigate();
@@ -14,9 +21,8 @@ const CheckoutPage = ({ token }) => {
       <div className="checkout-container">
         <h2>Please Log in to Checkout</h2>
         <p>
-          To complete your purchase, you need to{" "}
-          <Link to="/login">Log in</Link> or{" "}
-          <Link to="/register">Create an Account</Link>.
+          To complete your purchase, you need to <Link to="/login">Log in</Link>{" "}
+          or <Link to="/register">Create an Account</Link>.
         </p>
       </div>
     );
@@ -46,11 +52,13 @@ const CheckoutForm = ({ navigate, token }) => {
   const [isAddressLoaded, setIsAddressLoaded] = useState(false);
   const [cartItems, setCartItems] = useState([]);
   const [isCartLoaded, setIsCartLoaded] = useState(false);
+  const [totalPrice, setTotalPrice] = useState(0);
+  const [taxAmount, setTaxAmount] = useState(0);
+  const [totalAfterTax, setTotalAfterTax] = useState(0);
 
   useEffect(() => {
     const fetchAddress = async () => {
       try {
-
         const response = await fetch("http://localhost:5001/users/account", {
           method: "GET",
           headers: {
@@ -61,8 +69,6 @@ const CheckoutForm = ({ navigate, token }) => {
 
         if (response.ok) {
           const { user } = await response.json();
-          console.log("User Account Data Retrieved:", user);
-
           if (user) {
             setShippingAddress((prev) => ({
               ...prev,
@@ -74,8 +80,6 @@ const CheckoutForm = ({ navigate, token }) => {
               country: user.address?.country || "",
             }));
           }
-        } else {
-          console.error("Address fetch failed:", response.status);
         }
       } catch (error) {
         console.error("Error fetching account data:", error.message);
@@ -89,8 +93,6 @@ const CheckoutForm = ({ navigate, token }) => {
 
   useEffect(() => {
     const fetchCart = async () => {
-      console.log("Fetching cart data...");
-
       try {
         const response = await fetch("http://localhost:5001/cart", {
           method: "GET",
@@ -102,10 +104,12 @@ const CheckoutForm = ({ navigate, token }) => {
 
         if (response.ok) {
           const { cart } = await response.json();
-          console.log("Cart data fetched successfully:", cart);
           setCartItems(cart);
-        } else {
-          console.error("Failed to fetch cart data. Status:", response.status);
+          const total = cart.reduce(
+            (sum, item) => sum + item.price * item.quantity,
+            0
+          );
+          setTotalPrice(total);
         }
       } catch (error) {
         console.error("Error fetching cart data:", error.message);
@@ -117,6 +121,17 @@ const CheckoutForm = ({ navigate, token }) => {
     fetchCart();
   }, [token]);
 
+  useEffect(() => {
+    if (shippingAddress.state === "Texas") {
+      const tax = totalPrice * TAX_RATE_TEXAS;
+      setTaxAmount(tax);
+      setTotalAfterTax(totalPrice + tax);
+    } else {
+      setTaxAmount(0);
+      setTotalAfterTax(totalPrice);
+    }
+  }, [shippingAddress.state, totalPrice]);
+
   const handleAddressChange = (event) => {
     const { name, value } = event.target;
     setShippingAddress((prevAddress) => ({
@@ -127,43 +142,40 @@ const CheckoutForm = ({ navigate, token }) => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    console.log("Cart items before submission:", cartItems);
-  
     if (!stripe || !elements) return;
-  
+
     if (cartItems.length === 0) {
-      console.error("Cart is empty. Cannot proceed with payment.");
       setPaymentError("Your cart is empty.");
       return;
     }
-  
+
     setIsProcessing(true);
-  
+
     try {
-      const totalAmount = Math.round(
-        cartItems.reduce((total, item) => total + item.price * item.quantity, 0) * 100
+      const totalAmount = Math.round(totalAfterTax * 100);
+
+      const response = await fetch(
+        "http://localhost:5001/payments/create-payment-intent",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            amount: totalAmount,
+            shippingAddress,
+            products: cartItems,
+          }),
+        }
       );
-      console.log("Total amount to charge (in cents):", totalAmount);
-  
-      const response = await fetch("http://localhost:5001/payments/create-payment-intent", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          amount: totalAmount, 
-          shippingAddress,
-          products: cartItems,
-        }),
-      });
-  
+
       if (!response.ok) {
         throw new Error(`Failed to create payment intent: ${response.status}`);
       }
-  
-      const { clientSecret, orderId } = await response.json();
-  
+
+      const { clientSecret } = await response.json();
+
       const paymentResult = await stripe.confirmCardPayment(clientSecret, {
         payment_method: {
           card: elements.getElement(CardElement),
@@ -179,22 +191,18 @@ const CheckoutForm = ({ navigate, token }) => {
           },
         },
       });
-  
+
       if (paymentResult.error) {
         setPaymentError(paymentResult.error.message);
       } else if (paymentResult.paymentIntent.status === "succeeded") {
-        console.log("Payment successful, Order ID:", orderId);
-  
-        // Clear the cart in the backend
         await fetch("http://localhost:5001/cart", {
           method: "DELETE",
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-  
-        setCartItems([]); 
-  
+
+        setCartItems([]);
         setPaymentSuccess(true);
       }
     } catch (error) {
@@ -204,7 +212,7 @@ const CheckoutForm = ({ navigate, token }) => {
       setIsProcessing(false);
     }
   };
-  
+
   return (
     <div className="checkout-form">
       <h1>Checkout</h1>
@@ -256,14 +264,16 @@ const CheckoutForm = ({ navigate, token }) => {
                 />
               </div>
               <div className="form-group">
-                <label>State</label>
-                <input
-                  type="text"
+                <label htmlFor="state">State</label>
+                <select
+                  id="state"
                   name="state"
                   value={shippingAddress.state}
                   onChange={handleAddressChange}
                   required
-                />
+                >
+                  <USStatesDropdown />
+                </select>
               </div>
               <div className="form-group">
                 <label>ZIP</label>
@@ -286,6 +296,15 @@ const CheckoutForm = ({ navigate, token }) => {
                 />
               </div>
 
+              <h3>Order Summary:</h3>
+              <p>Total Price (before taxes): ${totalPrice.toFixed(2)}</p>
+              {shippingAddress.state === "Texas" && (
+                <>
+                  <p>Taxes (8.2%): ${taxAmount.toFixed(2)}</p>
+                  <p>Total Price (after taxes): ${totalAfterTax.toFixed(2)}</p>
+                </>
+              )}
+
               <CardElement />
               <button type="submit" disabled={!stripe || isProcessing}>
                 {isProcessing ? "Processing..." : "Pay Now"}
@@ -297,7 +316,10 @@ const CheckoutForm = ({ navigate, token }) => {
       )}
 
       {!paymentSuccess && (
-        <button className="back-to-cart-button" onClick={() => navigate("/cart")}>
+        <button
+          className="back-to-cart-button"
+          onClick={() => navigate("/cart")}
+        >
           Back to Cart
         </button>
       )}

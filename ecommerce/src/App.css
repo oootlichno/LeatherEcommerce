@@ -359,14 +359,6 @@ h3 {
   color: #333;
 }
 
-.form-group input {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 14px;
-  color: #333;
-}
 
 .form-group input:focus {
   border-color: #007bff;
@@ -749,6 +741,30 @@ h3 {
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
 }
 
+.form-group select {
+  width: 100%; 
+  padding: 10px; 
+  border: 1px solid #ccc; 
+  border-radius: 5px; 
+  font-size: 16px; 
+  font-family: "Poppins", sans-serif; 
+  color: #333; 
+  appearance: none; 
+  background-color: #fff; 
+  outline: none; 
+}
+
+.form-group select:focus {
+  border-color: #007bff; 
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); 
+}
+
+.form-group select {
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath fill='%23333' d='M5 6L0 0h10z'/%3E%3C/svg%3E")
+    no-repeat right 10px center;
+  background-size: 10px;
+}
+
 /*Search Bar*/
 
 .custom-search-bar {
@@ -918,7 +934,7 @@ button:hover {
 
 /* Footer Styles */
 .Footer {
-  background-color: black;
+  background-color: #55565b;
   color: white;
   text-align: center;
   padding: 20px;
