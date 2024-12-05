@@ -48,7 +48,7 @@ input,
 textarea {
   font-family: inherit;
   font-size: inherit;
-  border: 1px solid #ddd;
+  border: 1px solid #ccc;
   padding: 0.5rem;
   border-radius: 5px;
   color: #000;
@@ -101,7 +101,7 @@ h3 {
   align-items: center;
   max-width: 100%;
   background-color: #fff;
-  border-bottom: 2px solid #000;
+  border-bottom: 1px solid #ccc;
   margin-bottom: 30px;
 }
 
@@ -177,7 +177,7 @@ h3 {
   margin: 20px auto;
   padding: 20px;
   background-color: #fff;
-  border: 2px solid #000;
+  border: 1px solid #ccc;
   border-radius: 10px;
 }
 
@@ -199,7 +199,7 @@ h3 {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border: 2px solid #000;
+  border: 1px solid #ccc;
   border-radius: 5px;
   padding: 10px;
 }
@@ -231,7 +231,7 @@ h3 {
   color: #fff;
   background-color: #000;
   padding: 8px 12px;
-  border: 2px solid #000;
+  border: 1px solid #ccc;
   border-radius: 5px;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -257,7 +257,7 @@ h3 {
   font-size: 16px;
   color: #fff;
   background-color: #000;
-  border: 2px solid #000;
+  border: 1px solid #ccc;
   padding: 10px 20px;
   border-radius: 5px;
   text-align: center;
@@ -295,7 +295,7 @@ h3 {
 }
 
 .category {
-  border: 2px solid #000000;
+  border: 1px solid #ccc;
   border-radius: 8px;
   padding: 20px;
   background-color: #ffffff;
@@ -333,7 +333,7 @@ h3 {
 .register-box {
   background: #fff;
   padding: 30px 40px;
-  border: 2px solid #000;
+  border: 1px solid #ccc;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   max-width: 400px;
@@ -362,7 +362,7 @@ h3 {
 .form-group input {
   width: 100%;
   padding: 10px;
-  border: 1px solid #ddd;
+  border: 1px solid #ccc;
   border-radius: 4px;
   font-size: 14px;
   color: #333;
@@ -451,7 +451,7 @@ h3 {
   display: flex;
   justify-content: space-between;
   padding: 10px;
-  border: 1px solid #ddd;
+  border: 1px solid #ccc;
   margin-bottom: 10px;
 }
 
@@ -500,7 +500,7 @@ h3 {
   text-align: center;
   background-color: #fff;
   padding: 15px;
-  border: 2px solid black;
+  border: 1px solid #ccc;
   border-radius: 10px;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   cursor: pointer;
@@ -668,7 +668,7 @@ h3 {
 .quantity-selector button:hover {
   background-color: white;
   color: black;
-  border: 1px solid black;
+  border: 1px solid #ccc;
 }
 
 .add-to-cart {
@@ -696,7 +696,7 @@ h3 {
   margin: 50px auto;
   padding: 30px;
   background-color: #fff;
-  border: 2px solid #000;
+  border: 1px solid #ccc;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   text-align: left;
@@ -737,7 +737,7 @@ h3 {
 
 .form-group input {
   padding: 10px;
-  border: 1px solid #000;
+  border: 1px solid #ccc;
   border-radius: 5px;
   font-size: 16px;
   font-family: "Poppins", sans-serif;
@@ -786,7 +786,7 @@ h3 {
   width: 100%;
   background-color: rgba(255, 255, 255, 0.95);
   /* Transparent white background */
-  border: 1px solid #ddd;
+  border: 1px solid #ccc;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
   z-index: 1000;
   max-height: 300px;
@@ -856,8 +856,8 @@ h3 {
 }
 
 .search-bar-container input {
-  width: 200%;
-  max-width: 800px;
+  width: 70%;
+  max-width: 300px;
   /* Optional: Limit the max width */
 }
 
@@ -866,6 +866,28 @@ h3 {
   /* Adds spacing between logo and search bar */
 }
 
+/* Sort container styling */
+.sort-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* Align it to the left */
+  width: auto; /* Automatically size it to its content */
+  margin-bottom: 20px; /* Add space below the dropdown */
+  margin-left: 155px;
+  padding: 0;
+}
+
+.sort-container label {
+  margin-right: 8px; /* Add spacing between the label and the dropdown */
+  font-weight: bold;
+}
+
+.sort-dropdown {
+  width: 200px; 
+  padding: 5px; 
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
 
 
 /* Buttons */
@@ -873,7 +895,7 @@ button {
   font-family: "Poppins", sans-serif;
   font-size: 18px;
   padding: 10px 20px;
-  border: 2px solid #000;
+  border: 1px solid #ccc;
   border-radius: 5px;
   cursor: pointer;
   background-color: #000;

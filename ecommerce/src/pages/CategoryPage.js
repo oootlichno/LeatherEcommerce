@@ -1,39 +1,57 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Link, useParams } from "react-router-dom";
 import productImage from "../style/img/leather.png";
+import SortComponent from "../components/SortComponent";
 
 const CategoryPage = ({ cartItems, token, setToken }) => {
-  const { categoryId } = useParams(); 
+  const { categoryId } = useParams();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const response = await fetch(
-          `http://localhost:5001/products?categoryId=${categoryId}`
-        );
-        if (!response.ok) {
-          throw new Error("Failed to fetch products");
-        }
-        const data = await response.json();
-        setProducts(data); 
-      } catch (err) {
-        setError(err.message); 
-      } finally {
-        setLoading(false); 
+  const fetchProducts = useCallback(async (sortOption = "featured") => {
+    setLoading(true);
+    try {
+      const response = await fetch(
+        `http://localhost:5001/products?categoryId=${categoryId}&sort=${sortOption}`
+      );
+      if (!response.ok) {
+        throw new Error("Failed to fetch products");
       }
-    };
-
-    fetchProducts();
+      const data = await response.json();
+      setProducts(data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   }, [categoryId]); 
 
-  if (loading) return <div>Loading...</div>; 
-  if (error) return <div>Error: {error}</div>; 
+  useEffect(() => {
+    fetchProducts(); 
+  }, [categoryId, fetchProducts]); 
+
+  const handleSortChange = async (sortOption) => {
+    try {
+      const response = await fetch(
+        `http://localhost:5001/products?categoryId=${categoryId}&sortBy=${sortOption}`
+      );
+      if (!response.ok) {
+        throw new Error("Failed to sort products");
+      }
+      const sortedProducts = await response.json();
+      setProducts(sortedProducts);
+    } catch (error) {
+      console.error("Error sorting products:", error.message);
+    }
+  };
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
 
   return (
     <div>
+      <SortComponent onSortChange={handleSortChange} />
       <div className="products">
         {products.map((product) => (
           <div className="product" key={product.id}>
