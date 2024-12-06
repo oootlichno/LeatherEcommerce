@@ -55,6 +55,8 @@ const CheckoutForm = ({ navigate, token }) => {
   const [totalPrice, setTotalPrice] = useState(0);
   const [taxAmount, setTaxAmount] = useState(0);
   const [totalAfterTax, setTotalAfterTax] = useState(0);
+  const [shippingCost, setShippingCost] = useState(0);
+  const [isShippingLoaded, setIsShippingLoaded] = useState(false);
 
   useEffect(() => {
     const fetchAddress = async () => {
@@ -213,6 +215,74 @@ const CheckoutForm = ({ navigate, token }) => {
     }
   };
 
+  useEffect(() => {
+    if (isAddressLoaded && shippingAddress.state) {
+      const calculateShipping = async () => {
+        try {
+          const response = await fetch(
+            "http://localhost:5001/api/ups/calculate-shipping",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                from: {
+                  address: "Your Company Address",
+                  city: "Your City",
+                  state: "Your State",
+                  zip: "Your Zip",
+                  country: "US",
+                },
+                to: {
+                  address: shippingAddress.street,
+                  city: shippingAddress.city,
+                  state: shippingAddress.state,
+                  zip: shippingAddress.zip,
+                  country: shippingAddress.country || "US",
+                },
+                weight: cartItems.reduce(
+                  (totalWeight, item) =>
+                    totalWeight + item.weight * item.quantity,
+                  0
+                ),
+              }),
+            }
+          );
+
+          if (!response.ok) {
+            throw new Error("Failed to calculate shipping cost");
+          }
+
+          const { rates } = await response.json();
+          if (rates && rates.length > 0) {
+            setShippingCost(rates[0].cost); // Use the first rate (e.g., cheapest option)
+          } else {
+            setShippingCost(0);
+          }
+        } catch (error) {
+          console.error("Error calculating shipping cost:", error.message);
+          setShippingCost(0); // Default to 0 if there's an error
+        } finally {
+          setIsShippingLoaded(true);
+        }
+      };
+
+      calculateShipping();
+    }
+  }, [isAddressLoaded, shippingAddress, cartItems]);
+
+  useEffect(() => {
+    const calculateFinalTotal = () => {
+      const tax =
+        shippingAddress.state === "Texas" ? totalPrice * TAX_RATE_TEXAS : 0;
+      setTaxAmount(tax);
+      setTotalAfterTax(totalPrice + tax + shippingCost);
+    };
+
+    calculateFinalTotal();
+  }, [totalPrice, shippingCost, shippingAddress.state]);
+
   return (
     <div className="checkout-form">
       <h1>Checkout</h1>
@@ -298,6 +368,10 @@ const CheckoutForm = ({ navigate, token }) => {
 
               <h3>Order Summary:</h3>
               <p>Total Price (before taxes): ${totalPrice.toFixed(2)}</p>
+              <p>
+                Shipping Cost: $
+                {isShippingLoaded ? shippingCost.toFixed(2) : "Calculating..."}
+              </p>
               {shippingAddress.state === "Texas" && (
                 <>
                   <p>Taxes (8.2%): ${taxAmount.toFixed(2)}</p>
