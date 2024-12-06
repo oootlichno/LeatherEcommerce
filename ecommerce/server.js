@@ -10,6 +10,7 @@ const paymentRoutes = require("./routes/paymentRoutes");
 const searchRoutes = require("./routes/searchRoutes");
 const productRoutes = require("./routes/productRoutes");
 const upsRoutes = require("./routes/upsRoutes");
+const sendEmail = require("./routes/sendEmail");
 const { router: authRoutes } = require("./routes/authRoutes");
 
 const app = express();
@@ -23,6 +24,7 @@ app.use("/payments", paymentRoutes);
 app.use("/products/search", searchRoutes);
 app.use("/products", productRoutes);
 app.use("/api/ups", upsRoutes);
+app.use("/api", sendEmail);
 app.use("/", authRoutes);
 
 app.get("/", (req, res) => {

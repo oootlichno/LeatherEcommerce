@@ -48,6 +48,7 @@ const CheckoutForm = ({ navigate, token }) => {
     state: "",
     zip: "",
     country: "",
+    email: "", // Added email field for notification
   });
   const [isAddressLoaded, setIsAddressLoaded] = useState(false);
   const [cartItems, setCartItems] = useState([]);
@@ -80,6 +81,7 @@ const CheckoutForm = ({ navigate, token }) => {
               state: user.address?.state || "",
               zip: user.address?.zip || "",
               country: user.address?.country || "",
+              email: user.email || "", 
             }));
           }
         }
@@ -156,6 +158,7 @@ const CheckoutForm = ({ navigate, token }) => {
     try {
       const totalAmount = Math.round(totalAfterTax * 100);
 
+      // Step 1: Create a payment intent
       const response = await fetch(
         "http://localhost:5001/payments/create-payment-intent",
         {
@@ -178,6 +181,7 @@ const CheckoutForm = ({ navigate, token }) => {
 
       const { clientSecret } = await response.json();
 
+      // Step 2: Confirm payment
       const paymentResult = await stripe.confirmCardPayment(clientSecret, {
         payment_method: {
           card: elements.getElement(CardElement),
@@ -197,6 +201,30 @@ const CheckoutForm = ({ navigate, token }) => {
       if (paymentResult.error) {
         setPaymentError(paymentResult.error.message);
       } else if (paymentResult.paymentIntent.status === "succeeded") {
+        // Step 3: Send Email Notification
+        const emailResponse = await fetch("http://localhost:5001/api/send-email", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            customerEmail: shippingAddress.email,
+            adminEmail: "your_admin_email@example.com",
+            orderDetails: {
+              customerName: shippingAddress.name,
+              products: cartItems,
+              total: totalAfterTax.toFixed(2),
+            },
+          }),
+        });
+
+        if (!emailResponse.ok) {
+          console.error("Failed to send email notifications");
+        } else {
+          console.log("Email notifications sent successfully");
+        }
+
+        // Step 4: Clear the cart and show success message
         await fetch("http://localhost:5001/cart", {
           method: "DELETE",
           headers: {
